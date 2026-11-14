@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { kiemTra } from '../controllers/health.controller.js';
+import { getHealth } from '../controllers/health.controller.js';
 
 const router = Router();
 
-router.get('/', kiemTra);
+router.get('/', getHealth);
 
 export default router;
