@@ -1,0 +1,10 @@
+/* Footer luôn nằm cuối màn hình kể cả khi nội dung ngắn */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout__content {
+  flex: 1;
+}

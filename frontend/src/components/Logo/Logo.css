@@ -1,0 +1,78 @@
+.logo {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.logo__mark {
+  width: auto;
+  height: 36px;
+}
+
+.logo__pin {
+  fill: var(--color-primary);
+}
+
+.logo__wave {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+}
+
+.logo__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.logo__name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.logo__tagline {
+  margin-top: 3px;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.logo--dark .logo__name {
+  color: var(--color-text);
+}
+
+.logo--dark .logo__name-highlight {
+  color: var(--color-primary);
+}
+
+.logo--dark .logo__tagline {
+  color: var(--color-text-muted);
+}
+
+.logo--light .logo__pin {
+  fill: #2f86f0;
+}
+
+.logo--light .logo__name {
+  color: #fff;
+}
+
+.logo--light .logo__name-highlight {
+  color: #ff8a45;
+}
+
+.logo--light .logo__tagline {
+  color: #aab6c4;
+}
+
+/* Điện thoại nhỏ: ẩn dòng phụ cho navbar đủ chỗ */
+@media (max-width: 479px) {
+  .logo__tagline {
+    display: none;
+  }
+}
