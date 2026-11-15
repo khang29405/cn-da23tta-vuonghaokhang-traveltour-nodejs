@@ -1,4 +1,4 @@
-// position: phần ảnh được giữ lại khi ảnh bị cắt theo khung banner. Nguồn ảnh: docs/nguon-hinh-anh.md
+// position: phần ảnh được giữ lại khi ảnh bị cắt theo khung banner
 const heroSlides = [
   { image: '/images/cau-vang-da-nang.jpg', location: 'Cầu Vàng, Bà Nà – Đà Nẵng', position: 'center 50%' },
   { image: '/images/sai-gon.jpg', location: 'TP. Hồ Chí Minh về đêm', position: 'center 55%' },
