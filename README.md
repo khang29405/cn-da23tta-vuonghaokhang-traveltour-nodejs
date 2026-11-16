@@ -88,12 +88,12 @@ cd cn-da23tta-vuonghaokhang-traveltour-nodejs
 
 Mở SSMS, kết nối tới SQL Server, rồi chạy lần lượt hai file trong `backend/database/`:
 
-1. `schema.sql`: tạo cơ sở dữ liệu và các bảng.
+1. `schema.sql`: tạo cơ sở dữ liệu `TourDuLich` và 14 bảng.
 2. `seed.sql`: thêm dữ liệu mẫu (vai trò, tài khoản mẫu, danh mục).
 
-> Hai file này được bổ sung ở giai đoạn xây dựng cơ sở dữ liệu. Nếu thư mục còn trống thì bỏ qua bước này; backend vẫn chạy được, chỉ chưa kết nối được cơ sở dữ liệu.
+Chạy lại `schema.sql` sẽ xóa toàn bộ dữ liệu cũ để tạo lại từ đầu.
 
-Cần bật **SQL Server Authentication** và có một tài khoản đăng nhập (ví dụ `sa`) để backend kết nối.
+Backend đăng nhập bằng tài khoản SQL Server, nên cần bật chế độ **SQL Server and Windows Authentication** và có một tài khoản đăng nhập (ví dụ `sa`). Hướng dẫn chi tiết: [backend/database/README.md](backend/database/README.md).
 
 ### 3. Cấu hình và chạy backend
 
@@ -106,10 +106,10 @@ Sao chép `.env.example` thành `.env`, rồi sửa các giá trị cho đúng v
 
 ```env
 PORT=5000
-DB_SERVER=localhost          # có instance thì ghi: localhost\SQLEXPRESS
+DB_SERVER=localhost\SQLEXPRESS   # SQL Server bản đầy đủ không có instance thì ghi: localhost
 DB_NAME=TourDuLich
 DB_USER=sa
-DB_PASSWORD=mat_khau_sql_server
+DB_PASSWORD=mat_khau_tai_khoan_sa
 JWT_SECRET=chuoi_bi_mat_tu_dat
 ```
 
@@ -121,7 +121,7 @@ npm run dev      # chế độ phát triển, tự khởi động lại khi sử
 npm start
 ```
 
-Kiểm tra: mở <http://localhost:5000/api/health>. Backend chạy đúng sẽ trả về `"success": true`.
+Kiểm tra: mở <http://localhost:5000/api/health>. Backend chạy đúng và kết nối được cơ sở dữ liệu sẽ trả về `"success": true` cùng `"connected": true`. Nếu trả mã 503, xem lý do lỗi in trên terminal của backend (thường là sai `DB_SERVER` hoặc mật khẩu).
 
 ### 4. Cấu hình và chạy frontend
 
@@ -146,12 +146,23 @@ npm run dev
 
 Mở địa chỉ Vite in ra trên terminal (mặc định <http://localhost:5173>).
 
+## Tài khoản mẫu
+
+Có sau khi chạy `seed.sql`. Cả 3 tài khoản dùng chung mật khẩu **`Matkhau@123`**.
+
+| Vai trò | Email |
+|---|---|
+| Quản trị viên | `quantri@traveltour.vn` |
+| Nhân viên | `nhanvien@traveltour.vn` |
+| Khách hàng | `khachhang@gmail.com` |
+
 ## Lệnh thường dùng
 
 | Thư mục | Lệnh | Tác dụng |
 |---|---|---|
 | `backend` | `npm run dev` | Chạy API với nodemon |
 | `backend` | `npm start` | Chạy API |
+| `backend` | `npm run hash-password -- <mat_khau>` | Sinh mã băm bcrypt cho tài khoản mẫu trong `seed.sql` |
 | `frontend` | `npm run dev` | Chạy giao diện ở chế độ phát triển |
 | `frontend` | `npm run build` | Đóng gói giao diện vào `frontend/dist` |
 | `frontend` | `npm run preview` | Xem thử bản đã đóng gói |
