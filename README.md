@@ -148,13 +148,13 @@ Mở địa chỉ Vite in ra trên terminal (mặc định <http://localhost:517
 
 ## Tài khoản mẫu
 
-Có sau khi chạy `seed.sql`. Cả 3 tài khoản dùng chung mật khẩu **`Matkhau@123`**.
+Có sau khi chạy `seed.sql`. Cả 3 tài khoản dùng chung mật khẩu **`Matkhau@123`**. Đăng nhập tại `http://localhost:5173/dang-nhap`, hệ thống tự chuyển tới trang của từng vai trò.
 
-| Vai trò | Email |
-|---|---|
-| Quản trị viên | `quantri@traveltour.vn` |
-| Nhân viên | `nhanvien@traveltour.vn` |
-| Khách hàng | `khachhang@gmail.com` |
+| Vai trò | Email | Trang sau khi đăng nhập |
+|---|---|---|
+| Quản trị viên | `quantri@traveltour.vn` | `/admin` (trang quản trị) |
+| Nhân viên | `nhanvien@traveltour.vn` | `/nhan-vien` (xử lý đơn đặt tour) |
+| Khách hàng | `khachhang@gmail.com` | `/` (trang chủ) |
 
 ## Lệnh thường dùng
 
