@@ -1,29 +1,32 @@
+import { useId } from 'react';
 import { Link } from 'react-router-dom';
 import siteInfo from '../../config/siteInfo.js';
 import './Logo.css';
 
 // variant "dark" dùng trên nền sáng (navbar), "light" dùng trên nền tối (footer)
-const Logo = ({ variant = 'dark' }) => (
-  <Link to="/" className={`logo logo--${variant}`} aria-label={`${siteInfo.name} - Trang chủ`}>
-    <svg className="logo__mark" viewBox="0 0 32 40" aria-hidden="true">
-      <path
-        className="logo__pin"
-        d="M16 1C8.3 1 2 7.1 2 14.7 2 24.6 16 39 16 39s14-14.4 14-24.3C30 7.1 23.7 1 16 1Z"
-      />
-      <circle cx="16" cy="14.6" r="9.2" fill="#fff" />
-      <circle cx="19.2" cy="11" r="3.3" fill="#ff6a13" />
-      <path
-        className="logo__wave"
-        d="M8.2 17.6c2 0 2-1.5 3.9-1.5s2 1.5 3.9 1.5 2-1.5 3.9-1.5 2 1.5 3.9 1.5M9.6 21.2c1.7 0 1.7-1.3 3.2-1.3s1.6 1.3 3.2 1.3 1.6-1.3 3.2-1.3 1.6 1.3 3.2 1.3"
-      />
-    </svg>
-    <span className="logo__text">
+const Logo = ({ variant = 'dark' }) => {
+  // Logo xuất hiện 2 lần trên trang (navbar, footer) nên id của clipPath phải khác nhau
+  const clipId = `logo-badge-${useId().replace(/[^\w-]/g, '')}`;
+
+  return (
+    <Link to="/" className={`logo logo--${variant}`} aria-label={`${siteInfo.name} - Trang chủ`}>
+      <svg className="logo__mark" viewBox="0 0 40 40" aria-hidden="true">
+        <clipPath id={clipId}>
+          <circle cx="20" cy="20" r="20" />
+        </clipPath>
+        <g clipPath={`url(#${clipId})`}>
+          <rect width="40" height="40" fill="#dcebfd" />
+          <circle cx="26.5" cy="13" r="5" fill="#ff6a13" />
+          <path d="M-2 31 11 14.5 16.5 21 22 15.5 42 31Z" fill="#0850a8" />
+          <path d="M-2 26c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8V44H-2Z" fill="#5aa2f5" />
+          <path d="M-2 31.5c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8V44H-2Z" fill="#0b63ce" />
+        </g>
+      </svg>
       <span className="logo__name">
         Travel<span className="logo__name-highlight">Tour</span>
       </span>
-      <span className="logo__tagline">Du lịch trong nước</span>
-    </span>
-  </Link>
-);
+    </Link>
+  );
+};
 
 export default Logo;

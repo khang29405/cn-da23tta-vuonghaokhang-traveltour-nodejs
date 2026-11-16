@@ -2,60 +2,34 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--space-2);
+  gap: 8px;
 }
 
 .logo__mark {
-  width: auto;
-  height: 36px;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
 }
 
-.logo__pin {
-  fill: var(--color-primary);
+.logo:hover .logo__mark {
+  transform: rotate(-10deg);
 }
 
-.logo__wave {
-  fill: none;
-  stroke: var(--color-primary);
-  stroke-width: 1.9;
-  stroke-linecap: round;
-}
-
-.logo__text {
-  display: flex;
-  flex-direction: column;
+.logo__name {
+  font-size: 1.1875rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   line-height: 1;
   white-space: nowrap;
 }
 
-.logo__name {
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.logo__tagline {
-  margin-top: 3px;
-  font-size: 0.5625rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
 .logo--dark .logo__name {
-  color: var(--color-text);
+  color: var(--color-footer);
 }
 
 .logo--dark .logo__name-highlight {
   color: var(--color-primary);
-}
-
-.logo--dark .logo__tagline {
-  color: var(--color-text-muted);
-}
-
-.logo--light .logo__pin {
-  fill: #2f86f0;
 }
 
 .logo--light .logo__name {
@@ -63,16 +37,11 @@
 }
 
 .logo--light .logo__name-highlight {
-  color: #ff8a45;
+  color: #5aa2f5;
 }
 
-.logo--light .logo__tagline {
-  color: #aab6c4;
-}
-
-/* Điện thoại nhỏ: ẩn dòng phụ cho navbar đủ chỗ */
-@media (max-width: 479px) {
-  .logo__tagline {
-    display: none;
+@media (prefers-reduced-motion: reduce) {
+  .logo__mark {
+    transition: none;
   }
 }
