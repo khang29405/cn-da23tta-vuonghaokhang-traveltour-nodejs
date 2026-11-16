@@ -1,0 +1,19 @@
+.dashboard-page__title {
+  margin-bottom: var(--space-5);
+  font-size: var(--text-xl);
+}
+
+.dashboard-placeholder {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-5);
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+}
+
+.dashboard-placeholder__icon {
+  font-size: var(--text-lg);
+}

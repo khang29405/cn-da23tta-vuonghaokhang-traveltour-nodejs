@@ -18,3 +18,9 @@
   margin-block: var(--space-3) var(--space-6);
   color: var(--color-text-muted);
 }
+
+.not-found__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
