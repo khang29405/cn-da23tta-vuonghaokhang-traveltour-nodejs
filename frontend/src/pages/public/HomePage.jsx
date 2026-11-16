@@ -102,7 +102,7 @@ const HomePage = () => {
               Xem tất cả <FontAwesomeIcon icon={faChevronRight} />
             </Link>
           </div>
-          {/* Bước 16 thay khối này bằng các dải TourRail lấy từ GET /api/tour/trang-chu */}
+          {/* Bước 16 thay khối này bằng các dải TourRail lấy từ GET /api/tours/home */}
           <div className="home-section__empty">
             Chưa có lịch khởi hành nào. Các tour sắp khởi hành sẽ xuất hiện tại đây.
           </div>
