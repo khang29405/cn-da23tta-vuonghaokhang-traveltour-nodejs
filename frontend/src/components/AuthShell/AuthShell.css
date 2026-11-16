@@ -1,0 +1,480 @@
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--space-6) var(--space-12);
+}
+
+.auth-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.auth-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #fff;
+  transition: background 1s ease;
+}
+
+.auth-visual--day {
+  background: #1e6fd0;
+}
+
+.auth-visual--sunset {
+  background: #3d3a8a;
+}
+
+.auth-visual--night {
+  background: #0c1a3a;
+}
+
+.auth-visual__star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #fff;
+  border-radius: 50%;
+  animation: auth-star-twinkle 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes auth-star-twinkle {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 0.95;
+  }
+}
+
+.auth-visual__content {
+  position: relative;
+  z-index: 1;
+  padding: var(--space-5) var(--space-5) 0;
+}
+
+.auth-visual__greeting {
+  margin-bottom: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: #ffd2b0;
+}
+
+.auth-visual__heading {
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.auth-visual__subheading,
+.auth-visual__benefits {
+  display: none;
+}
+
+/* Khối riêng nằm dưới phần chữ (không đè lên) nên chữ dài bao nhiêu cũng không che hình */
+.landscape {
+  flex-shrink: 0;
+  width: 100%;
+  height: 210px;
+  margin-top: auto;
+}
+
+.landscape__cloud {
+  animation: landscape-cloud 22s ease-in-out infinite alternate;
+}
+
+.landscape__cloud--slow {
+  opacity: 0.85;
+}
+
+.landscape__cloud--fast {
+  opacity: 0.55;
+  animation-duration: 15s;
+  animation-direction: alternate-reverse;
+}
+
+.landscape__bird {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: landscape-flap 0.9s ease-in-out infinite alternate;
+}
+
+.landscape__lantern-glow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: landscape-glow 1.8s ease-in-out infinite alternate;
+}
+
+.landscape__light {
+  animation: landscape-sun-rise 1.6s ease-out both;
+}
+
+.landscape__halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: landscape-glow 4s ease-in-out infinite alternate;
+}
+
+.landscape__halo--inner {
+  animation-delay: 1s;
+}
+
+.landscape__wave {
+  animation: landscape-wave 9s linear infinite;
+}
+
+.landscape__wave--front {
+  animation-duration: 6s;
+  animation-direction: reverse;
+}
+
+.landscape__reflection {
+  animation: landscape-shimmer 2.4s ease-in-out infinite alternate;
+}
+
+.landscape__boat {
+  animation: landscape-bob 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes landscape-cloud {
+  from {
+    transform: translateX(-24px);
+  }
+  to {
+    transform: translateX(24px);
+  }
+}
+
+@keyframes landscape-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.35);
+  }
+}
+
+@keyframes landscape-sun-rise {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes landscape-glow {
+  from {
+    transform: scale(0.92);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+/* Trượt đúng một chu kỳ sóng (WAVE_PERIOD trong Landscape.jsx) để vòng lặp liền mạch */
+@keyframes landscape-wave {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(80px);
+  }
+}
+
+@keyframes landscape-shimmer {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+
+@keyframes landscape-bob {
+  from {
+    transform: translate(-6px, 0) rotate(-3deg);
+  }
+  to {
+    transform: translate(6px, -2px) rotate(3deg);
+  }
+}
+
+.landscape__plane {
+  animation: landscape-fly 30s linear infinite;
+}
+
+.landscape__blink {
+  animation: landscape-blink 1.2s steps(1) infinite;
+}
+
+.landscape__balloon {
+  animation: landscape-float 6s ease-in-out infinite alternate;
+}
+
+.landscape__beam {
+  animation: landscape-beam 3s ease-in-out infinite alternate;
+}
+
+.landscape__shooting-star {
+  opacity: 0;
+  animation: landscape-shoot 9s ease-out infinite 2s;
+}
+
+.landscape__distant-boat {
+  animation: landscape-drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes landscape-fly {
+  from {
+    transform: translateX(-40px);
+  }
+  to {
+    transform: translateX(480px);
+  }
+}
+
+@keyframes landscape-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes landscape-float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes landscape-beam {
+  from {
+    opacity: 0.08;
+  }
+  to {
+    opacity: 0.3;
+  }
+}
+
+/* Chỉ vụt qua trong khoảng 1 giây đầu của mỗi chu kỳ 9 giây */
+@keyframes landscape-shoot {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  3% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 0;
+    transform: translateX(120px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(120px);
+  }
+}
+
+@keyframes landscape-drift {
+  from {
+    transform: translateX(-12px);
+  }
+  to {
+    transform: translateX(12px);
+  }
+}
+
+.auth-form {
+  padding: var(--space-6) var(--space-5);
+}
+
+.auth-form__title {
+  margin-bottom: var(--space-5);
+  font-size: var(--text-xl);
+}
+
+.auth-form .input::placeholder {
+  font-size: var(--text-sm);
+  color: #9aa5b1;
+}
+
+.auth-form .form-field + .form-field,
+.auth-form__row {
+  margin-top: var(--space-3);
+}
+
+.auth-form__alert {
+  margin-bottom: var(--space-4);
+}
+
+.auth-form__submit {
+  width: 100%;
+  min-height: 42px;
+  margin-top: var(--space-5);
+}
+
+.auth-form__switch {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.auth-form__switch a {
+  font-weight: 600;
+}
+
+/* Khi mở trang: chữ cột trái và form hiện dần lên theo cùng một nhịp */
+.auth-visual__greeting,
+.auth-visual__heading,
+.auth-visual__subheading,
+.auth-visual__benefit,
+.auth-form__title,
+.auth-form form,
+.auth-form__switch {
+  animation: auth-enter 0.55s ease-out both;
+}
+
+.auth-visual__greeting {
+  animation-delay: 0.1s;
+}
+
+.auth-visual__heading,
+.auth-form__title {
+  animation-delay: 0.2s;
+}
+
+.auth-visual__subheading,
+.auth-form form {
+  animation-delay: 0.3s;
+}
+
+.auth-visual__benefit:nth-child(1),
+.auth-form__switch {
+  animation-delay: 0.4s;
+}
+
+.auth-visual__benefit:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.auth-visual__benefit:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes auth-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 900px) {
+  .auth-page {
+    padding-block: var(--space-5) var(--space-10);
+  }
+
+  .auth-shell {
+    flex-direction: row;
+    max-width: 960px;
+  }
+
+  .auth-visual {
+    flex: 0 0 46%;
+  }
+
+  .auth-visual__content {
+    padding: var(--space-8) var(--space-8) 0;
+  }
+
+  .auth-visual__heading {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  .auth-visual__subheading {
+    display: block;
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    opacity: 0.9;
+  }
+
+  .auth-visual__benefits {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    list-style: none;
+  }
+
+  .auth-visual__benefit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .auth-visual__benefit-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: var(--radius);
+    font-size: var(--text-xs);
+  }
+
+  .landscape {
+    height: 290px;
+  }
+
+  .auth-form {
+    flex: 1;
+    align-self: center;
+    padding: var(--space-8) var(--space-10);
+  }
+
+  .auth-form__title {
+    font-size: 1.5rem;
+  }
+
+  .auth-form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .auth-form__row .form-field + .form-field {
+    margin-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landscape *,
+  .auth-visual__star,
+  .auth-visual__content *,
+  .auth-form * {
+    animation: none !important;
+  }
+}

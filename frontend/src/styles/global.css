@@ -206,6 +206,33 @@ h4 {
   color: var(--color-danger);
 }
 
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid;
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+}
+
+.alert svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.alert--error {
+  background: #fdeeee;
+  border-color: #f3c4c4;
+  color: #a51f1f;
+}
+
+.alert--success {
+  background: #e9f6ef;
+  border-color: #b8e0c9;
+  color: #0d6b3a;
+}
+
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
