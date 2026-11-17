@@ -15,7 +15,3 @@ export const login = async (req, res) => {
 
 // GET /api/auth/me: req.user đã được middleware authenticate đọc từ CSDL
 export const getMe = (req, res) => sendSuccess(res, req.user, 'Thông tin tài khoản');
-
-// GET /api/auth/check-admin: chỉ để kiểm thử authorize
-export const checkAdmin = (req, res) =>
-  sendSuccess(res, { vai_tro: req.user.vai_tro }, 'Bạn có quyền quản trị');
