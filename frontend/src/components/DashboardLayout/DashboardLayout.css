@@ -117,10 +117,44 @@
   color: inherit;
 }
 
+/* Khu quản trị/nhân viên dùng mật độ gọn hơn trang khách để thấy nhiều dữ liệu, ít phải cuộn.
+   Hộp thoại <dialog> nằm trong .dashboard__content nên cũng nhận các cỡ này. */
 .dashboard__content {
   flex: 1;
   min-width: 0;
-  padding: var(--space-5) var(--space-4) var(--space-8);
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  font-size: 0.875rem;
+}
+
+.dashboard__content .btn {
+  min-height: 34px;
+  padding: 0.375rem 0.875rem;
+  font-size: var(--text-sm);
+}
+
+.dashboard__content .btn--sm {
+  min-height: 28px;
+  padding: 0.25rem 0.625rem;
+  font-size: var(--text-xs);
+}
+
+.dashboard__content .input {
+  min-height: 36px;
+  padding: 0.375rem 0.625rem;
+  font-size: var(--text-sm);
+}
+
+.dashboard__content .form-field + .form-field {
+  margin-top: var(--space-3);
+}
+
+.dashboard__content .alert {
+  padding: var(--space-2) var(--space-3);
+}
+
+.dashboard-page__title {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-lg);
 }
 
 @media (min-width: 768px) {
@@ -155,6 +189,6 @@
   }
 
   .dashboard__content {
-    padding: var(--space-6) var(--space-8) var(--space-10);
+    padding: var(--space-5) var(--space-6) var(--space-8);
   }
 }
