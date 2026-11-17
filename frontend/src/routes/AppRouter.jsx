@@ -8,12 +8,19 @@ import LoginPage from '../pages/public/LoginPage.jsx';
 import RegisterPage from '../pages/public/RegisterPage.jsx';
 import NotFoundPage from '../pages/public/NotFoundPage.jsx';
 import DashboardPlaceholder from '../pages/admin/DashboardPlaceholder.jsx';
+import CategoryPage from '../pages/admin/category/CategoryPage.jsx';
 import { ROLES, ADMIN_PATH, STAFF_PATH } from '../config/roles.js';
 import { adminMenu, staffMenu } from '../config/dashboardMenus.js';
 
-const renderMenuRoutes = (menu) =>
+// Mục menu chưa có trong bảng này thì hiện trang tạm
+const adminPages = {
+  'danh-muc': CategoryPage,
+};
+
+const renderMenuRoutes = (menu, pages = {}) =>
   menu.map(({ path, label }) => {
-    const element = <DashboardPlaceholder title={label} />;
+    const Page = pages[path];
+    const element = Page ? <Page /> : <DashboardPlaceholder title={label} />;
     return path ? <Route key={path} path={path} element={element} /> : <Route key="index" index element={element} />;
   });
 
@@ -38,7 +45,7 @@ const AppRouter = () => (
 
     <Route element={<ProtectedRoute roles={[ROLES.ADMIN]} />}>
       <Route path={ADMIN_PATH} element={<DashboardLayout title="Quản trị" basePath={ADMIN_PATH} menu={adminMenu} />}>
-        {renderMenuRoutes(adminMenu)}
+        {renderMenuRoutes(adminMenu, adminPages)}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Route>

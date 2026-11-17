@@ -1,0 +1,154 @@
+.category-tabs {
+  display: flex;
+  gap: var(--space-5);
+  margin-bottom: var(--space-4);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.category-tabs__tab {
+  padding: var(--space-2) 0;
+  margin-bottom: -1px;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.category-tabs__tab:hover {
+  color: var(--color-primary);
+}
+
+.category-tabs__tab--active {
+  border-bottom-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.category-manager__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.category-manager__heading {
+  font-size: var(--text-base);
+}
+
+.category-manager__count {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.category-manager__toolbar-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.category-manager__toolbar-text {
+  display: none;
+}
+
+.category-manager__notice,
+.category-manager__form-error {
+  margin-bottom: var(--space-3);
+}
+
+.category-table__wrapper {
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.category-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.category-table th,
+.category-table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.category-table th {
+  background: var(--color-bg);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.category-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.category-table tbody tr:hover td {
+  background: #f9fbfd;
+}
+
+.category-table__name {
+  min-width: 140px;
+  font-weight: 600;
+}
+
+.category-table__muted {
+  color: var(--color-text-muted);
+}
+
+.category-table td.category-table__empty {
+  padding: var(--space-8) var(--space-3);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* Cột thao tác co vừa các nút; tiêu đề và nút cùng căn phải */
+.category-table th.category-table__actions-cell,
+.category-table td.category-table__actions-cell {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.category-table__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* global.css đặt svg max-width: 100%, khiến icon co mất khi bảng hẹp */
+.category-table__actions svg {
+  max-width: none;
+}
+
+.category-table__action-text {
+  display: none;
+}
+
+.category-table__delete:hover:not(:disabled) {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.category-form__textarea {
+  resize: vertical;
+}
+
+@media (min-width: 768px) {
+  .category-manager__toolbar-text,
+  .category-table__action-text {
+    display: inline;
+  }
+}

@@ -156,18 +156,6 @@ Có sau khi chạy `seed.sql`. Cả 3 tài khoản dùng chung mật khẩu **`M
 | Nhân viên | `nhanvien@traveltour.vn` | `/nhan-vien` (xử lý đơn đặt tour) |
 | Khách hàng | `khachhang@gmail.com` | `/` (trang chủ) |
 
-## Lệnh thường dùng
-
-| Thư mục | Lệnh | Tác dụng |
-|---|---|---|
-| `backend` | `npm run dev` | Chạy API với nodemon |
-| `backend` | `npm start` | Chạy API |
-| `backend` | `npm run hash-password -- <mat_khau>` | Sinh mã băm bcrypt cho tài khoản mẫu trong `seed.sql` |
-| `frontend` | `npm run dev` | Chạy giao diện ở chế độ phát triển |
-| `frontend` | `npm run build` | Đóng gói giao diện vào `frontend/dist` |
-| `frontend` | `npm run preview` | Xem thử bản đã đóng gói |
-| `frontend` | `npm run lint` | Kiểm tra mã nguồn bằng oxlint |
-
 ## Tài liệu
 
 Các tài liệu của đồ án đặt trong thư mục `docs/`:
