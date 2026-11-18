@@ -11,13 +11,7 @@ export const categoryConfigs = [
     nameField: 'ten_loai_tour',
     fields: [
       { name: 'ten_loai_tour', label: 'Tên loại tour', required: true, maxLength: 100, placeholder: 'Biển đảo' },
-      {
-        name: 'mo_ta_ngan',
-        label: 'Mô tả ngắn',
-        maxLength: 500,
-        multiline: true,
-        placeholder: 'Tắm biển, lặn ngắm san hô, tham quan đảo',
-      },
+      { name: 'mo_ta_ngan', label: 'Mô tả ngắn', maxLength: 500, multiline: true },
     ],
     list: categoryApi.getTourTypes,
     create: categoryApi.createTourType,
