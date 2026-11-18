@@ -1,6 +1,7 @@
 import AppError from '../utils/AppError.js';
 import * as tourModel from '../models/tour.model.js';
 import { runInTransaction } from '../utils/transaction.js';
+import { removeUploadedFiles } from '../utils/uploadStorage.js';
 import { parsePagination, buildPagination, toPaginatedData } from '../utils/pagination.js';
 import {
   requireText,
@@ -137,6 +138,8 @@ export const deleteTour = async (id) => {
     );
   }
 
+  // Lấy danh sách ảnh trước khi xóa dòng trong CSDL; file trên đĩa chỉ xóa khi CSDL đã xóa xong
+  const images = await tourModel.findImagesByTourId(id);
   try {
     await runInTransaction((transaction) => tourModel.deleteTourWithChildren(id, transaction));
   } catch (err) {
@@ -146,4 +149,5 @@ export const deleteTour = async (id) => {
     }
     throw err;
   }
+  await removeUploadedFiles(images.map((image) => image.duong_dan_anh));
 };

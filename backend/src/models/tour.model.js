@@ -147,7 +147,7 @@ export const deleteItineraryByTourId = async (tourId, transaction) => {
 
 // Xóa tour cùng các dòng phụ thuộc (yêu thích, ảnh, lịch trình). Service chỉ gọi khi tour chưa có
 // lịch khởi hành; nếu có, khóa ngoại của LICH_KHOI_HANH sẽ chặn câu DELETE TOUR (lỗi 547).
-// Xóa file ảnh trên đĩa sẽ bổ sung ở Bước 9.
+// File ảnh trên đĩa do service xóa sau khi transaction thành công.
 export const deleteTourWithChildren = async (tourId, transaction) => {
   const request = await createRequest(transaction);
   await request.input('tourId', sql.Int, tourId).query(`
