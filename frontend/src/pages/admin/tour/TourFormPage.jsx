@@ -10,6 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import FormField from '../../../components/FormField/FormField.jsx';
 import ItineraryEditor from './ItineraryEditor.jsx';
+import TourImageManager from './TourImageManager.jsx';
 import * as categoryApi from '../../../api/categoryApi.js';
 import { getAdminTour, createTour, updateTour } from '../../../api/tourApi.js';
 import { getErrorMessage } from '../../../api/axiosClient.js';
@@ -476,48 +477,46 @@ const TourForm = ({ tourId }) => {
         </form>
 
         <aside className="tour-form__side">
-          <section className="tour-form__section tour-form__save" aria-labelledby="tour-section-save">
-            <h2 id="tour-section-save" className="tour-form__section-title">
-              {isEdit ? 'Lưu thay đổi' : 'Lưu tour'}
-            </h2>
-            <dl className="tour-form__summary">
-              <dt>Trạng thái</dt>
-              <dd>
-                {isEdit ? (
+          <section className="tour-form__section tour-form__save" aria-label={isEdit ? 'Lưu thay đổi' : 'Lưu tour'}>
+            <p className="tour-form__summary">
+              {isEdit ? (
+                <>
                   <span className={`status-badge status-badge--${tour.trang_thai_hien_thi ? 'visible' : 'hidden'}`}>
                     {tour.trang_thai_hien_thi ? 'Đang hiển thị' : 'Đang ẩn'}
                   </span>
-                ) : (
-                  'Chưa lưu'
-                )}
-              </dd>
-              {isEdit && (
-                <>
-                  <dt>Ngày tạo</dt>
-                  <dd>{formatDate(tour.ngay_tao)}</dd>
+                  <span>Tạo ngày {formatDate(tour.ngay_tao)}</span>
                 </>
+              ) : (
+                <span>Tour mới, chưa lưu</span>
               )}
-            </dl>
+            </p>
             <div className="tour-form__save-buttons">
-              <button type="submit" form="tour-form" className="btn btn--primary" disabled={isSaving}>
-                {submitLabel}
-              </button>
-              <Link to={TOUR_PATH} className="btn btn--outline">
+              <Link to={TOUR_PATH} className="btn btn--outline btn--sm">
                 {cancelLabel}
               </Link>
+              <button type="submit" form="tour-form" className="btn btn--primary btn--sm" disabled={isSaving}>
+                {submitLabel}
+              </button>
             </div>
           </section>
 
-          {/* Bước 11 thay khu này bằng phần tải ảnh, Bước 13 thay khu lịch khởi hành */}
-          <section className="tour-form__section tour-form__section--placeholder" aria-labelledby="tour-section-images">
-            <h2 id="tour-section-images" className="tour-form__section-title">
-              <FontAwesomeIcon icon={faImages} />
-              Ảnh tour
-            </h2>
-            <p className="tour-form__placeholder-text">
-              {isEdit ? 'Chức năng quản lý ảnh đang được hoàn thiện.' : 'Lưu tour trước, sau đó thêm ảnh tại đây.'}
-            </p>
-          </section>
+          {/* Ảnh gắn với mã tour nên chỉ quản lý được sau khi tour đã lưu */}
+          {isEdit ? (
+            <TourImageManager key={tour.ma_tour} tourId={tour.ma_tour} initialImages={tour.anh_tour} />
+          ) : (
+            <section
+              className="tour-form__section tour-form__section--placeholder"
+              aria-labelledby="tour-section-images"
+            >
+              <h2 id="tour-section-images" className="tour-form__section-title">
+                <FontAwesomeIcon icon={faImages} />
+                Ảnh tour
+              </h2>
+              <p className="tour-form__placeholder-text">Lưu tour trước, sau đó thêm ảnh tại đây.</p>
+            </section>
+          )}
+
+          {/* Bước 13 thay khu này bằng phần quản lý lịch khởi hành */}
           <section
             className="tour-form__section tour-form__section--placeholder"
             aria-labelledby="tour-section-departures"
