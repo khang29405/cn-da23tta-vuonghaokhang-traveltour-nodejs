@@ -29,13 +29,17 @@ export const countTours = async () => {
   return result.recordset[0].total;
 };
 
-// Gồm cả tour đang ẩn; tour mới thêm đứng đầu
+// Gồm cả tour đang ẩn; tour mới thêm đứng đầu. anh_dai_dien là đường dẫn ảnh đại diện (NULL khi tour chưa có ảnh)
 export const findTours = async ({ offset, limit }) => {
   const request = await createRequest();
   const result = await request
     .input('offset', sql.Int, offset)
     .input('limit', sql.Int, limit)
-    .query(`${TOUR_SELECT} ${TOUR_JOINS}
+    .query(`${TOUR_SELECT},
+        (SELECT TOP 1 a.duong_dan_anh FROM ANH_TOUR a
+         WHERE a.ma_tour = t.ma_tour
+         ORDER BY a.la_anh_dai_dien DESC, a.thu_tu_hien_thi, a.ma_anh) AS anh_dai_dien
+      ${TOUR_JOINS}
       ORDER BY t.ngay_tao DESC, t.ma_tour DESC
       OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`);
   return result.recordset;
