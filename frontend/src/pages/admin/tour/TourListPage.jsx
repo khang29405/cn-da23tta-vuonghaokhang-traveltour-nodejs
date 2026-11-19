@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCircleCheck,
   faCircleExclamation,
+  faImage,
   faPen,
   faPlus,
   faRotateRight,
@@ -15,6 +16,7 @@ import { getAdminTours, deleteTour } from '../../../api/tourApi.js';
 import { getErrorMessage } from '../../../api/axiosClient.js';
 import { useFlashNotice } from '../../../hooks/useFlashNotice.js';
 import { formatDuration, formatPrice } from '../../../utils/format.js';
+import { toAssetUrl } from '../../../utils/assetUrl.js';
 import { ADMIN_PATH } from '../../../config/roles.js';
 import './TourListPage.css';
 
@@ -104,12 +106,23 @@ const TourListPage = () => {
     return tours.map((tour) => (
       <tr key={tour.ma_tour}>
         <td className="tour-table__tour">
-          <Link to={`${TOUR_PATH}/${tour.ma_tour}`} className="tour-table__name">
-            {tour.ten_tour}
-          </Link>
-          <span className="tour-table__meta">
-            #{tour.ma_tour} · {formatDuration(tour.so_ngay, tour.so_dem)}
-          </span>
+          <div className="tour-table__tour-inner">
+            {tour.anh_dai_dien ? (
+              <img src={toAssetUrl(tour.anh_dai_dien)} alt="" className="tour-table__thumb" loading="lazy" />
+            ) : (
+              <span className="tour-table__thumb tour-table__thumb--empty" title="Chưa có ảnh">
+                <FontAwesomeIcon icon={faImage} />
+              </span>
+            )}
+            <div>
+              <Link to={`${TOUR_PATH}/${tour.ma_tour}`} className="tour-table__name">
+                {tour.ten_tour}
+              </Link>
+              <span className="tour-table__meta">
+                #{tour.ma_tour} · {formatDuration(tour.so_ngay, tour.so_dem)}
+              </span>
+            </div>
+          </div>
         </td>
         <td>{tour.ten_loai_tour}</td>
         <td>{tour.ten_diem_den}</td>

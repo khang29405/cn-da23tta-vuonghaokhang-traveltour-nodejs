@@ -73,9 +73,32 @@
 }
 
 .tour-table td.tour-table__tour {
-  min-width: 220px;
-  max-width: 340px;
+  min-width: 280px;
+  max-width: 400px;
   white-space: normal;
+}
+
+.tour-table__tour-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tour-table__thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--color-bg);
+}
+
+.tour-table__thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  color: #b4bcc6;
 }
 
 .tour-table__name {
