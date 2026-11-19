@@ -12,7 +12,7 @@ import {
 // (gắn trang thật trong AppRouter.jsx).
 export const adminMenu = [
   { path: '', label: 'Tổng quan', icon: faChartLine }, // Bước 33
-  { path: 'tour', label: 'Tour', icon: faMapLocationDot }, // Bước 10
+  { path: 'tour', label: 'Tour', icon: faMapLocationDot },
   { path: 'danh-muc', label: 'Loại tour', icon: faTags },
   { path: 'don-dat-tour', label: 'Đơn đặt tour', icon: faClipboardList }, // Bước 25
   { path: 'danh-gia', label: 'Đánh giá', icon: faStar }, // Bước 28

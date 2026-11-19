@@ -9,11 +9,14 @@ import RegisterPage from '../pages/public/RegisterPage.jsx';
 import NotFoundPage from '../pages/public/NotFoundPage.jsx';
 import DashboardPlaceholder from '../pages/admin/DashboardPlaceholder.jsx';
 import CategoryPage from '../pages/admin/category/CategoryPage.jsx';
+import TourListPage from '../pages/admin/tour/TourListPage.jsx';
+import TourFormPage from '../pages/admin/tour/TourFormPage.jsx';
 import { ROLES, ADMIN_PATH, STAFF_PATH } from '../config/roles.js';
 import { adminMenu, staffMenu } from '../config/dashboardMenus.js';
 
 // Mục menu chưa có trong bảng này thì hiện trang tạm
 const adminPages = {
+  tour: TourListPage,
   'danh-muc': CategoryPage,
 };
 
@@ -46,6 +49,8 @@ const AppRouter = () => (
     <Route element={<ProtectedRoute roles={[ROLES.ADMIN]} />}>
       <Route path={ADMIN_PATH} element={<DashboardLayout title="Quản trị" basePath={ADMIN_PATH} menu={adminMenu} />}>
         {renderMenuRoutes(adminMenu, adminPages)}
+        <Route path="tour/them" element={<TourFormPage />} />
+        <Route path="tour/:tourId" element={<TourFormPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Route>
