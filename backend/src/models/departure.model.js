@@ -23,12 +23,49 @@ const departureSelect = (where, lock = false) => `
 
 const withCancelled = (request) => request.input('cancelled', sql.VarChar(20), BOOKING_STATUS.CANCELLED);
 
-// Ngày gần nhất đứng đầu
-export const findDeparturesByTour = async (tourId) => {
+// Lọc theo "sắp tới" (từ hôm nay trở đi) hoặc "đã qua" (trước hôm nay)
+const VIEW_CONDITION = {
+  upcoming: 'l.ngay_khoi_hanh >= @today',
+  past: 'l.ngay_khoi_hanh < @today',
+};
+// Sắp tới: ngày gần nhất trước; đã qua: ngày mới qua trước
+const VIEW_ORDER = { upcoming: 'ASC', past: 'DESC' };
+
+// Số lịch sắp tới và đã qua của tour (để hiện trên nút chọn)
+export const countDeparturesByView = async (tourId, today) => {
+  const request = await createRequest();
+  const result = await request.input('tourId', sql.Int, tourId).input('today', sql.Date, today).query(`
+    SELECT ISNULL(SUM(CASE WHEN ngay_khoi_hanh >= @today THEN 1 ELSE 0 END), 0) AS upcoming,
+           ISNULL(SUM(CASE WHEN ngay_khoi_hanh < @today THEN 1 ELSE 0 END), 0) AS past
+    FROM LICH_KHOI_HANH WHERE ma_tour = @tourId`);
+  return result.recordset[0];
+};
+
+// Các tháng có lịch (dạng YYYY-MM, CONVERT kiểu 23 lấy 7 ký tự đầu) kèm số lịch mỗi tháng
+export const findDepartureMonths = async (tourId, view, today) => {
+  const request = await createRequest();
+  const result = await request.input('tourId', sql.Int, tourId).input('today', sql.Date, today).query(`
+    SELECT CONVERT(CHAR(7), l.ngay_khoi_hanh, 23) AS month, COUNT(*) AS total
+    FROM LICH_KHOI_HANH l
+    WHERE l.ma_tour = @tourId AND ${VIEW_CONDITION[view]}
+    GROUP BY CONVERT(CHAR(7), l.ngay_khoi_hanh, 23)
+    ORDER BY month ${VIEW_ORDER[view]}`);
+  return result.recordset;
+};
+
+// Lịch của một tháng trong chế độ xem đã chọn (view chỉ nhận 'upcoming'/'past' do service kiểm tra)
+export const findDeparturesByTour = async (tourId, { view, month, today }) => {
   const request = withCancelled(await createRequest());
   const result = await request
     .input('tourId', sql.Int, tourId)
-    .query(departureSelect('WHERE l.ma_tour = @tourId ORDER BY l.ngay_khoi_hanh, l.ma_lich_khoi_hanh'));
+    .input('today', sql.Date, today)
+    .input('month', sql.Char(7), month)
+    .query(
+      departureSelect(`
+        WHERE l.ma_tour = @tourId AND ${VIEW_CONDITION[view]}
+          AND CONVERT(CHAR(7), l.ngay_khoi_hanh, 23) = @month
+        ORDER BY l.ngay_khoi_hanh ${VIEW_ORDER[view]}, l.ma_lich_khoi_hanh`),
+    );
   return result.recordset;
 };
 

@@ -57,9 +57,24 @@ const resolveSellingStatus = (status, soChoConLai) => {
 
 /* ---------- Nghiệp vụ ---------- */
 
-export const getDeparturesByTour = async (tourId) => {
+const VIEWS = ['upcoming', 'past'];
+
+// Danh sách lịch không phân trang mà lọc theo tháng: ?view=upcoming|past&month=YYYY-MM.
+// Giống quy ước phân trang, tham số sai không báo lỗi mà dùng giá trị mặc định:
+// view sai → upcoming; month sai hoặc tháng không có lịch → tháng đầu tiên có lịch của chế độ xem đó.
+export const getDeparturesByTour = async (tourId, query) => {
   await ensureTourExists(tourId);
-  return departureModel.findDeparturesByTour(tourId);
+  const today = getToday();
+  const view = VIEWS.includes(query.view) ? query.view : 'upcoming';
+
+  const [counts, months] = await Promise.all([
+    departureModel.countDeparturesByView(tourId, today),
+    departureModel.findDepartureMonths(tourId, view, today),
+  ]);
+  const month = months.some((item) => item.month === query.month) ? query.month : (months[0]?.month ?? null);
+  const items = month ? await departureModel.findDeparturesByTour(tourId, { view, month, today }) : [];
+
+  return { items, filter: { view, month }, months, counts };
 };
 
 // Lịch mới luôn ở trạng thái mở, số chỗ còn lại bằng tổng số chỗ

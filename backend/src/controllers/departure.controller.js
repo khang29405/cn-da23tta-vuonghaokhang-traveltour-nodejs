@@ -5,7 +5,11 @@ import { parseId } from '../utils/validation.js';
 // /api/admin/tours/:id/departures và /api/admin/departures/:id (chỉ quản trị viên)
 
 export const getDeparturesByTour = async (req, res) =>
-  sendSuccess(res, await departureService.getDeparturesByTour(parseId(req.params.id)), 'Danh sách lịch khởi hành');
+  sendSuccess(
+    res,
+    await departureService.getDeparturesByTour(parseId(req.params.id), req.query),
+    'Danh sách lịch khởi hành',
+  );
 
 export const createDeparture = async (req, res) => {
   const departure = await departureService.createDeparture(parseId(req.params.id), req.body ?? {});
