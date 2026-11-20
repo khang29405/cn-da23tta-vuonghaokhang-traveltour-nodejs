@@ -52,6 +52,20 @@ export const optionalBoolean = (value, label, defaultValue) => {
   throw new AppError(`${capitalize(label)} chỉ nhận true/false`, 400);
 };
 
+// Ngày dạng YYYY-MM-DD (input type="date" của HTML gửi đúng dạng này) và phải là ngày có thật
+export const requireDate = (value, label) => {
+  if (value === undefined || value === null || value === '') throw new AppError(`Vui lòng chọn ${label}`, 400);
+  const match = typeof value === 'string' ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim()) : null;
+  if (!match) throw new AppError(`${capitalize(label)} phải có dạng YYYY-MM-DD`, 400);
+  const [, year, month, day] = match.map(Number);
+  // new Date tự "trôi" ngày sai (31/02 thành 03/03) nên so lại từng phần để bắt ngày không có thật
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    throw new AppError(`${capitalize(label)} không hợp lệ`, 400);
+  }
+  return value.trim();
+};
+
 // Mã trên đường dẫn (:id) phải là số nguyên dương
 export const parseId = (value) => {
   const id = Number(value);
