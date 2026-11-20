@@ -23,6 +23,13 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// Express 5 truyền lỗi khởi động (ví dụ cổng đã bị chương trình khác chiếm) vào callback;
+// không kiểm tra thì vẫn in "đang chạy" rồi tắt im lặng
+app.listen(PORT, (err) => {
+  if (err) {
+    const reason = err.code === 'EADDRINUSE' ? `cổng ${PORT} đang được chương trình khác sử dụng` : err.message;
+    console.error(`Không khởi động được máy chủ: ${reason}`);
+    process.exit(1);
+  }
   console.log(`Máy chủ đang chạy tại http://localhost:${PORT}`);
 });
