@@ -175,6 +175,49 @@
   color: var(--color-text-muted);
 }
 
+.status-badge--warning {
+  background: #fdf3e2;
+  color: var(--color-warning);
+}
+
+.status-badge--danger {
+  background: #fdeeee;
+  color: var(--color-danger);
+}
+
+/* Đường kẻ dưới vẽ bằng box-shadow bên trong (không dùng border + margin âm) để gạch chân của tab
+   đang chọn đè lên đường kẻ mà không làm khung cuộn ngang sinh thêm thanh cuộn dọc */
+.page-tabs {
+  display: flex;
+  gap: var(--space-5);
+  margin-bottom: var(--space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-shadow: inset 0 -1px 0 var(--color-border);
+}
+
+.page-tabs__tab {
+  padding: var(--space-2) 0;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.page-tabs__tab:hover {
+  color: var(--color-primary);
+}
+
+.page-tabs__tab--active {
+  border-bottom-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
 @media (min-width: 768px) {
   .dashboard__header {
     padding-inline: var(--space-6);

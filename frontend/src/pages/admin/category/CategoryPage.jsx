@@ -13,7 +13,7 @@ const CategoryPage = () => {
     <>
       <h1 className="dashboard-page__title">Loại tour</h1>
 
-      <div className="category-tabs" role="tablist" aria-label="Nhóm danh mục">
+      <div className="page-tabs" role="tablist" aria-label="Nhóm danh mục">
         {categoryConfigs.map(({ slug, label }) => {
           const isActive = slug === activeConfig.slug;
           return (
@@ -24,7 +24,7 @@ const CategoryPage = () => {
               id={`category-tab-${slug}`}
               aria-selected={isActive}
               aria-controls="category-panel"
-              className={`category-tabs__tab${isActive ? ' category-tabs__tab--active' : ''}`}
+              className={`page-tabs__tab${isActive ? ' page-tabs__tab--active' : ''}`}
               onClick={() => selectTab(slug)}
             >
               {label}
