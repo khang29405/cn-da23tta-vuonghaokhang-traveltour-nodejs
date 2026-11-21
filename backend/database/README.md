@@ -5,7 +5,7 @@ SQL Server, gồm 14 bảng theo mô hình ERD trong `docs/`.
 | File | Nội dung |
 |---|---|
 | `schema.sql` | Tạo cơ sở dữ liệu `TourDuLich` (nếu chưa có) và 14 bảng với khóa chính, khóa ngoại, `CHECK`, `UNIQUE` |
-| `seed.sql` | Dữ liệu mẫu: 3 vai trò, 3 tài khoản mẫu, điểm đến, điểm khởi hành, phương tiện, loại tour |
+| `seed.sql` | Dữ liệu mẫu: 3 vai trò, 3 tài khoản mẫu, điểm đến, điểm khởi hành, phương tiện, loại tour, 8 tour (lịch trình, lịch khởi hành tính từ ngày chạy seed; không có ảnh) |
 
 ## Cách chạy (SSMS)
 
