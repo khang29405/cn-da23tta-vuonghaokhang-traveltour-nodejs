@@ -12,7 +12,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog.jsx';
 import Pagination from '../../../components/Pagination/Pagination.jsx';
+import TourFilters from './TourFilters.jsx';
 import { getAdminTours, deleteTour } from '../../../api/tourApi.js';
+import { getDestinations, getTourTypes } from '../../../api/categoryApi.js';
 import { getErrorMessage } from '../../../api/axiosClient.js';
 import { useFlashNotice } from '../../../hooks/useFlashNotice.js';
 import { formatDuration, formatPrice } from '../../../utils/format.js';
@@ -21,7 +23,8 @@ import { ADMIN_PATH } from '../../../config/roles.js';
 import './TourListPage.css';
 
 const TOUR_PATH = `${ADMIN_PATH}/tour`;
-const COLUMN_COUNT = 8;
+const COLUMN_COUNT = 6;
+const FILTER_KEYS = ['keyword', 'tourType', 'destination', 'visibility'];
 
 const parsePage = (value) => {
   const page = Number(value);
@@ -31,7 +34,14 @@ const parsePage = (value) => {
 const TourListPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parsePage(searchParams.get('page'));
+  const keyword = searchParams.get('keyword') ?? '';
+  const tourType = searchParams.get('tourType') ?? '';
+  const destination = searchParams.get('destination') ?? '';
+  const visibility = searchParams.get('visibility') ?? '';
+  const filters = { keyword, tourType, destination, visibility };
+  const hasFilter = FILTER_KEYS.some((key) => filters[key]);
 
+  const [categories, setCategories] = useState({ tourTypes: [], destinations: [] });
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -50,13 +60,42 @@ const TourListPage = () => {
     [setSearchParams],
   );
 
+  // Đổi bộ lọc thì về trang 1; replace để nút Back không phải lùi qua từng chữ đã gõ
+  const changeFilters = useCallback(
+    (changes) =>
+      setSearchParams(
+        (current) => {
+          Object.entries(changes).forEach(([key, value]) => {
+            if (value) current.set(key, value);
+            else current.delete(key);
+          });
+          current.delete('page');
+          return current;
+        },
+        { replace: true },
+      ),
+    [setSearchParams],
+  );
+
+  const clearFilters = useCallback(
+    () => changeFilters(Object.fromEntries(FILTER_KEYS.map((key) => [key, '']))),
+    [changeFilters],
+  );
+
+  // Danh mục chỉ để đổ vào ô lọc; tải lỗi thì ô lọc chỉ còn lựa chọn "Tất cả", danh sách tour vẫn dùng được
+  useEffect(() => {
+    Promise.all([getTourTypes(), getDestinations()])
+      .then(([tourTypes, destinations]) => setCategories({ tourTypes, destinations }))
+      .catch(() => {});
+  }, []);
+
   const loadTours = useCallback(async () => {
-    // Bấm chuyển trang liên tục: chỉ nhận kết quả của lần gọi mới nhất
+    // Bấm chuyển trang, đổi bộ lọc liên tục: chỉ nhận kết quả của lần gọi mới nhất
     const requestId = ++latestRequest.current;
     setIsLoading(true);
     setLoadError('');
     try {
-      const result = await getAdminTours({ page });
+      const result = await getAdminTours({ page, keyword, tourType, destination, visibility });
       if (requestId !== latestRequest.current) return;
       setData(result);
       // Backend đưa số trang vượt quá về trang cuối (ví dụ vừa xóa tour cuối cùng của trang cuối)
@@ -66,7 +105,7 @@ const TourListPage = () => {
     } finally {
       if (requestId === latestRequest.current) setIsLoading(false);
     }
-  }, [page, goToPage]);
+  }, [page, keyword, tourType, destination, visibility, goToPage]);
 
   useEffect(() => {
     loadTours();
@@ -95,10 +134,18 @@ const TourListPage = () => {
 
   const renderTableBody = () => {
     if (tours.length === 0) {
+      let emptyText = 'Chưa có tour nào. Bấm "Thêm tour" để tạo tour đầu tiên.';
+      if (isLoading) emptyText = 'Đang tải danh sách...';
+      else if (hasFilter) emptyText = 'Không có tour nào khớp với bộ lọc.';
       return (
         <tr>
           <td colSpan={COLUMN_COUNT} className="tour-table__empty">
-            {isLoading ? 'Đang tải danh sách...' : 'Chưa có tour nào. Bấm "Thêm tour" để tạo tour đầu tiên.'}
+            {emptyText}
+            {hasFilter && !isLoading && (
+              <button type="button" className="tour-table__empty-action" onClick={clearFilters}>
+                Xóa bộ lọc
+              </button>
+            )}
           </td>
         </tr>
       );
@@ -119,15 +166,14 @@ const TourListPage = () => {
                 {tour.ten_tour}
               </Link>
               <span className="tour-table__meta">
-                #{tour.ma_tour} · {formatDuration(tour.so_ngay, tour.so_dem)}
+                #{tour.ma_tour} · {formatDuration(tour.so_ngay, tour.so_dem)} · Từ {tour.ten_diem_khoi_hanh},{' '}
+                {tour.ten_phuong_tien.toLowerCase()}
               </span>
             </div>
           </div>
         </td>
         <td>{tour.ten_loai_tour}</td>
         <td>{tour.ten_diem_den}</td>
-        <td>{tour.ten_diem_khoi_hanh}</td>
-        <td>{tour.ten_phuong_tien}</td>
         <td className="tour-table__price">{formatPrice(tour.gia)}</td>
         <td>
           <span className={`status-badge status-badge--${tour.trang_thai_hien_thi ? 'visible' : 'hidden'}`}>
@@ -177,6 +223,14 @@ const TourListPage = () => {
         </div>
       </div>
 
+      <TourFilters
+        filters={filters}
+        tourTypes={categories.tourTypes}
+        destinations={categories.destinations}
+        onChange={changeFilters}
+        onClear={clearFilters}
+      />
+
       {notice && (
         <p className={`alert alert--${notice.type} tour-list__notice`} role={notice.type === 'error' ? 'alert' : 'status'}>
           <FontAwesomeIcon icon={notice.type === 'error' ? faCircleExclamation : faCircleCheck} />
@@ -198,8 +252,6 @@ const TourListPage = () => {
                   <th scope="col">Tour</th>
                   <th scope="col">Loại tour</th>
                   <th scope="col">Điểm đến</th>
-                  <th scope="col">Khởi hành từ</th>
-                  <th scope="col">Phương tiện</th>
                   <th scope="col" className="tour-table__price">
                     Giá / khách
                   </th>

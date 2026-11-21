@@ -5,8 +5,11 @@ const getData = async (request) => {
   return data.data;
 };
 
-export const getAdminTours = ({ page, limit } = {}) =>
-  getData(axiosClient.get('/admin/tours', { params: { page, limit } }));
+// params: page, limit, keyword, tourType, destination, visibility; giá trị rỗng thì không gửi
+export const getAdminTours = (params = {}) => {
+  const query = Object.fromEntries(Object.entries(params).filter(([, value]) => value !== '' && value != null));
+  return getData(axiosClient.get('/admin/tours', { params: query }));
+};
 export const getAdminTour = (id) => getData(axiosClient.get(`/admin/tours/${id}`));
 export const createTour = (payload) => getData(axiosClient.post('/admin/tours', payload));
 export const updateTour = (id, payload) => getData(axiosClient.put(`/admin/tours/${id}`, payload));

@@ -73,8 +73,8 @@
 }
 
 .tour-table td.tour-table__tour {
-  min-width: 280px;
-  max-width: 400px;
+  min-width: 300px;
+  max-width: 480px;
   white-space: normal;
 }
 
@@ -133,6 +133,20 @@
   color: var(--color-text-muted);
 }
 
+.tour-table__empty-action {
+  margin-left: var(--space-2);
+  padding: 0;
+  background: none;
+  border: 0;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.tour-table__empty-action:hover {
+  text-decoration: underline;
+}
+
 .tour-table th.tour-table__actions-cell,
 .tour-table td.tour-table__actions-cell {
   width: 1%;
@@ -160,7 +174,13 @@
 }
 
 @media (min-width: 768px) {
-  .tour-list__toolbar-text,
+  .tour-list__toolbar-text {
+    display: inline;
+  }
+}
+
+/* Vùng nội dung (trừ menu bên trái) còn hẹp thì nút Sửa/Xóa chỉ hiện icon, để bảng không cuộn ngang từ 1200px */
+@media (min-width: 1280px) {
   .tour-table__action-text {
     display: inline;
   }
