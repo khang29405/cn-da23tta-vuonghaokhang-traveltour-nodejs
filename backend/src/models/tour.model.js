@@ -23,15 +23,48 @@ const TOUR_JOINS = `
 
 /* ---------- Đọc ---------- */
 
-export const countTours = async () => {
+// Ghép điều kiện lọc danh sách tour của quản trị; chỉ thêm điều kiện của bộ lọc có giá trị.
+// Mọi giá trị đều đi qua tham số, chuỗi SQL chỉ ghép các đoạn cố định.
+// keyword là mẫu LIKE đã thoát ký tự đặc biệt; tên tour so khớp không phân biệt hoa thường và dấu
+// (Latin1_General_CI_AI; Vietnamese_CI_AI vẫn coi "Đ" khác "D") để gõ "da lat" vẫn ra "Đà Lạt".
+// tourCode có khi từ khóa là một con số (tìm theo mã tour).
+const applyTourFilters = (request, { keyword, tourCode, tourType, destination, visible }) => {
+  const conditions = [];
+  if (keyword) {
+    request.input('keyword', sql.NVarChar(210), keyword);
+    if (tourCode) {
+      request.input('tourCode', sql.Int, tourCode);
+      conditions.push("(t.ten_tour COLLATE Latin1_General_CI_AI LIKE @keyword ESCAPE '\\' OR t.ma_tour = @tourCode)");
+    } else {
+      conditions.push("t.ten_tour COLLATE Latin1_General_CI_AI LIKE @keyword ESCAPE '\\'");
+    }
+  }
+  if (tourType) {
+    request.input('tourType', sql.Int, tourType);
+    conditions.push('t.ma_loai_tour = @tourType');
+  }
+  if (destination) {
+    request.input('destination', sql.Int, destination);
+    conditions.push('t.ma_diem_den = @destination');
+  }
+  if (visible !== null) {
+    request.input('visible', sql.Bit, visible);
+    conditions.push('t.trang_thai_hien_thi = @visible');
+  }
+  return conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+};
+
+export const countTours = async (filters) => {
   const request = await createRequest();
-  const result = await request.query('SELECT COUNT(*) AS total FROM TOUR');
+  const where = applyTourFilters(request, filters);
+  const result = await request.query(`SELECT COUNT(*) AS total FROM TOUR t ${where}`);
   return result.recordset[0].total;
 };
 
 // Gồm cả tour đang ẩn; tour mới thêm đứng đầu. anh_dai_dien là đường dẫn ảnh đại diện (NULL khi tour chưa có ảnh)
-export const findTours = async ({ offset, limit }) => {
+export const findTours = async (filters, { offset, limit }) => {
   const request = await createRequest();
+  const where = applyTourFilters(request, filters);
   const result = await request
     .input('offset', sql.Int, offset)
     .input('limit', sql.Int, limit)
@@ -40,6 +73,7 @@ export const findTours = async ({ offset, limit }) => {
          WHERE a.ma_tour = t.ma_tour
          ORDER BY a.la_anh_dai_dien DESC, a.thu_tu_hien_thi, a.ma_anh) AS anh_dai_dien
       ${TOUR_JOINS}
+      ${where}
       ORDER BY t.ngay_tao DESC, t.ma_tour DESC
       OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`);
   return result.recordset;

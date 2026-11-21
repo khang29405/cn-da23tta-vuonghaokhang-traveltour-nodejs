@@ -78,11 +78,45 @@ const saveItinerary = async (tourId, lichTrinh, transaction) => {
   }
 };
 
+/* ---------- Bộ lọc danh sách ---------- */
+
+const MAX_KEYWORD = 100;
+
+const toVisibleFilter = (value) => {
+  if (value === 'visible') return true;
+  if (value === 'hidden') return false;
+  return null;
+};
+
+// Thoát các ký tự có nghĩa riêng trong LIKE (\ % _ [) để từ khóa được tìm đúng nguyên văn
+const toLikePattern = (text) => `%${text.replace(/[\\%_[]/g, (char) => `\\${char}`)}%`;
+
+const toFilterId = (value) => {
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+};
+
+// Giống quy ước phân trang: giá trị lọc sai thì bỏ qua bộ lọc đó, không báo lỗi.
+// keyword "12" hoặc "#12" tìm cả tour mã 12 lẫn tour có "12" trong tên.
+const parseTourFilters = (query) => {
+  const keyword = (typeof query.keyword === 'string' ? query.keyword.trim() : '').slice(0, MAX_KEYWORD);
+  const code = /^#?(\d{1,9})$/.exec(keyword);
+  return {
+    keyword: keyword ? toLikePattern(keyword) : null,
+    tourCode: code ? Number(code[1]) : null,
+    tourType: toFilterId(query.tourType),
+    destination: toFilterId(query.destination),
+    visible: toVisibleFilter(query.visibility),
+  };
+};
+
 /* ---------- Nghiệp vụ ---------- */
 
+// Danh sách tour của quản trị: lọc theo keyword, tourType, destination, visibility (kết hợp được), có phân trang
 export const getTours = async (query) => {
-  const pagination = buildPagination(parsePagination(query), await tourModel.countTours());
-  const tours = await tourModel.findTours(pagination);
+  const filters = parseTourFilters(query);
+  const pagination = buildPagination(parsePagination(query), await tourModel.countTours(filters));
+  const tours = await tourModel.findTours(filters, pagination);
   return toPaginatedData(tours, pagination);
 };
 
