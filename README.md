@@ -66,7 +66,7 @@ File gốc (mở bằng [draw.io](https://app.diagrams.net/)) nằm trong `docs/
 │       ├── pages/         # trang public, customer, staff, admin
 │       ├── routes/
 │       └── styles/
-└── docs/                  # sơ đồ use case, mô hình ERD, báo cáo đồ án
+└── docs/                  # sơ đồ use case, mô hình ERD, bộ sưu tập Postman, báo cáo đồ án
 ```
 
 ## Yêu cầu cài đặt
@@ -89,7 +89,7 @@ cd cn-da23tta-vuonghaokhang-traveltour-nodejs
 Mở SSMS, kết nối tới SQL Server, rồi chạy lần lượt hai file trong `backend/database/`:
 
 1. `schema.sql`: tạo cơ sở dữ liệu `TourDuLich` và 14 bảng.
-2. `seed.sql`: thêm dữ liệu mẫu (vai trò, tài khoản mẫu, danh mục).
+2. `seed.sql`: thêm dữ liệu mẫu (vai trò, tài khoản mẫu, danh mục, 8 tour mẫu kèm lịch trình và lịch khởi hành).
 
 Chạy lại `schema.sql` sẽ xóa toàn bộ dữ liệu cũ để tạo lại từ đầu.
 
@@ -156,11 +156,18 @@ Có sau khi chạy `seed.sql`. Cả 3 tài khoản dùng chung mật khẩu **`M
 | Nhân viên | `nhanvien@traveltour.vn` | `/nhan-vien` (xử lý đơn đặt tour) |
 | Khách hàng | `khachhang@gmail.com` | `/` (trang chủ) |
 
+## Tour mẫu
+
+`seed.sql` có sẵn 8 tour thuộc đủ các loại tour, điểm đến, điểm khởi hành và phương tiện. Mỗi tour có lịch trình theo ngày và lịch khởi hành. Ngày khởi hành được tính từ ngày chạy `seed.sql` nên luôn nằm ở tương lai
+
+Tour mẫu chưa có ảnh. Ảnh tour không đưa lên Git: đăng nhập quản trị viên, vào **Tour → Sửa → Ảnh tour** để tải ảnh lên. Ảnh được lưu trong `backend/uploads/`.
+
 ## Tài liệu
 
 Các tài liệu của đồ án đặt trong thư mục `docs/`:
 
 - Sơ đồ use case và mô hình ERD (file `.png` và file gốc `.drawio`).
+- Bộ sưu tập Postman các API (`TravelTour.postman_collection.json`): trong Postman chọn **Import** rồi chọn file này. Gửi request đăng nhập trước để lấy token cho các API cần đăng nhập.
 - Báo cáo đồ án (sẽ bổ sung khi hoàn thành).
 
 ## Lưu ý
