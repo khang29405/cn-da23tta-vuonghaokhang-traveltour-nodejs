@@ -11,6 +11,9 @@ import {
 import FormField from '../../../components/FormField/FormField.jsx';
 import ItineraryEditor from './ItineraryEditor.jsx';
 import TourImageManager from './TourImageManager.jsx';
+import TourDepartureManager from './TourDepartureManager.jsx';
+import DepartureSummary from './DepartureSummary.jsx';
+import { useRememberedTab } from '../../../hooks/useRememberedTab.js';
 import * as categoryApi from '../../../api/categoryApi.js';
 import { getAdminTour, createTour, updateTour } from '../../../api/tourApi.js';
 import { getErrorMessage } from '../../../api/axiosClient.js';
@@ -27,6 +30,11 @@ const MAX_NAME_LENGTH = 200;
 const MAX_LONG_TEXT = 4000;
 const MAX_PRICE_DIGITS = 12;
 const DAY_OPTIONS = Array.from({ length: MAX_DAYS }, (_, index) => index + 1);
+
+const TOUR_TABS = [
+  { value: 'thong-tin', label: 'Thông tin tour' },
+  { value: 'lich-khoi-hanh', label: 'Lịch khởi hành' },
+];
 
 const CATEGORY_FIELDS = [
   { name: 'ma_loai_tour', label: 'Loại tour', listKey: 'tourTypes', nameField: 'ten_loai_tour' },
@@ -253,7 +261,8 @@ const TourForm = ({ tourId }) => {
         setNotice({ type: 'success', text: `Đã lưu thay đổi của tour "${updated.ten_tour}".` });
       } else {
         const created = await createTour(payload);
-        navigate(`${TOUR_PATH}/${created.ma_tour}`, {
+        // Mở tab Thông tin để thấy thông báo, dù lần trước đang ở tab Lịch khởi hành
+        navigate(`${TOUR_PATH}/${created.ma_tour}?tab=thong-tin`, {
           replace: true,
           state: { notice: { type: 'success', text: `Đã thêm tour "${created.ten_tour}".` } },
         });
@@ -316,14 +325,8 @@ const TourForm = ({ tourId }) => {
     'aria-describedby': `tour-${name}-message`,
   });
 
-  return (
-    <div className="tour-form">
-      {backLink}
-      <h1 className="dashboard-page__title tour-form__title">
-        {pageTitle}
-        {isEdit && <span className="tour-form__subtitle">#{tour.ma_tour}</span>}
-      </h1>
-
+  const infoContent = (
+    <>
       {notice && (
         <p className={`alert alert--${notice.type} tour-form__notice`} role="status">
           <FontAwesomeIcon icon={faCircleCheck} />
@@ -500,9 +503,25 @@ const TourForm = ({ tourId }) => {
             </div>
           </section>
 
-          {/* Ảnh gắn với mã tour nên chỉ quản lý được sau khi tour đã lưu */}
+          {/* Lịch khởi hành và ảnh gắn với mã tour nên chỉ quản lý được sau khi tour đã lưu.
+              Lịch đứng trước vì quản trị xem thường xuyên hơn ảnh */}
           {isEdit ? (
-            <TourImageManager key={tour.ma_tour} tourId={tour.ma_tour} initialImages={tour.anh_tour} />
+            <DepartureSummary tourId={tour.ma_tour} />
+          ) : (
+            <section
+              className="tour-form__section tour-form__section--placeholder"
+              aria-labelledby="tour-section-departures"
+            >
+              <h2 id="tour-section-departures" className="tour-form__section-title">
+                <FontAwesomeIcon icon={faCalendarDays} />
+                Lịch khởi hành
+              </h2>
+              <p className="tour-form__placeholder-text">Lưu tour trước, sau đó thêm lịch khởi hành tại đây.</p>
+            </section>
+          )}
+
+          {isEdit ? (
+            <TourImageManager tourId={tour.ma_tour} initialImages={tour.anh_tour} />
           ) : (
             <section
               className="tour-form__section tour-form__section--placeholder"
@@ -515,22 +534,6 @@ const TourForm = ({ tourId }) => {
               <p className="tour-form__placeholder-text">Lưu tour trước, sau đó thêm ảnh tại đây.</p>
             </section>
           )}
-
-          {/* Bước 13 thay khu này bằng phần quản lý lịch khởi hành */}
-          <section
-            className="tour-form__section tour-form__section--placeholder"
-            aria-labelledby="tour-section-departures"
-          >
-            <h2 id="tour-section-departures" className="tour-form__section-title">
-              <FontAwesomeIcon icon={faCalendarDays} />
-              Lịch khởi hành
-            </h2>
-            <p className="tour-form__placeholder-text">
-              {isEdit
-                ? 'Chức năng quản lý lịch khởi hành đang được hoàn thiện.'
-                : 'Lưu tour trước, sau đó thêm lịch khởi hành tại đây.'}
-            </p>
-          </section>
         </aside>
       </div>
 
@@ -543,7 +546,58 @@ const TourForm = ({ tourId }) => {
           {submitLabel}
         </button>
       </div>
+    </>
+  );
+
+  return (
+    <div className="tour-form">
+      {backLink}
+      <h1 className="dashboard-page__title tour-form__title">
+        {pageTitle}
+        {isEdit && <span className="tour-form__subtitle">#{tour.ma_tour}</span>}
+      </h1>
+      {isEdit ? <TourEditTabs tourId={tour.ma_tour}>{infoContent}</TourEditTabs> : infoContent}
     </div>
+  );
+};
+
+// Tab "Thông tin tour" chỉ bị ẩn (hidden) chứ không gỡ khỏi trang, để sang tab lịch rồi quay lại
+// không mất những gì đang nhập dở trong form
+const TourEditTabs = ({ tourId, children }) => {
+  const [activeTab, selectTab] = useRememberedTab('traveltour_admin_tour_tab', TOUR_TABS.map(({ value }) => value));
+
+  return (
+    <>
+      <div className="page-tabs" role="tablist" aria-label="Nội dung tour">
+        {TOUR_TABS.map(({ value, label }) => (
+          <button
+            key={value}
+            type="button"
+            role="tab"
+            id={`tour-tab-${value}`}
+            aria-selected={activeTab === value}
+            aria-controls={`tour-panel-${value}`}
+            className={`page-tabs__tab${activeTab === value ? ' page-tabs__tab--active' : ''}`}
+            onClick={() => selectTab(value)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div
+        id="tour-panel-thong-tin"
+        role="tabpanel"
+        aria-labelledby="tour-tab-thong-tin"
+        hidden={activeTab !== 'thong-tin'}
+      >
+        {children}
+      </div>
+      {activeTab === 'lich-khoi-hanh' && (
+        <div id="tour-panel-lich-khoi-hanh" role="tabpanel" aria-labelledby="tour-tab-lich-khoi-hanh">
+          <TourDepartureManager tourId={tourId} />
+        </div>
+      )}
+    </>
   );
 };
 
