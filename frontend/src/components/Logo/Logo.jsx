@@ -1,32 +1,43 @@
-import { useId } from 'react';
 import { Link } from 'react-router-dom';
+import { faPlane } from '@fortawesome/free-solid-svg-icons';
 import siteInfo from '../../config/siteInfo.js';
 import './Logo.css';
 
-// variant "dark" dùng trên nền sáng (navbar), "light" dùng trên nền tối (footer)
-const Logo = ({ variant = 'dark' }) => {
-  // Logo xuất hiện 2 lần trên trang (navbar, footer) nên id của clipPath phải khác nhau
-  const clipId = `logo-badge-${useId().replace(/[^\w-]/g, '')}`;
+// Icon máy bay của Font Awesome (khung 576 x 512, mũi hướng sang phải); lấy đường vẽ để đặt trong SVG logo
+const [PLANE_WIDTH, PLANE_HEIGHT, , , PLANE_PATH] = faPlane.icon;
 
-  return (
-    <Link to="/" className={`logo logo--${variant}`} aria-label={`${siteInfo.name} - Trang chủ`}>
-      <svg className="logo__mark" viewBox="0 0 40 40" aria-hidden="true">
-        <clipPath id={clipId}>
-          <circle cx="20" cy="20" r="20" />
-        </clipPath>
-        <g clipPath={`url(#${clipId})`}>
-          <rect width="40" height="40" fill="#dcebfd" />
-          <circle cx="26.5" cy="13" r="5" fill="#ff6a13" />
-          <path d="M-2 31 11 14.5 16.5 21 22 15.5 42 31Z" fill="#0850a8" />
-          <path d="M-2 26c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8V44H-2Z" fill="#5aa2f5" />
-          <path d="M-2 31.5c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8c1.5 0 1.5-1.8 3-1.8s1.5 1.8 3 1.8V44H-2Z" fill="#0b63ce" />
-        </g>
-      </svg>
-      <span className="logo__name">
-        Travel<span className="logo__name-highlight">Tour</span>
+// Chữ "o" của "Tour" là quả địa cầu (cùng màu chữ "Tour"); quỹ đạo cam vòng phía dưới rồi vút lên góc phải,
+// cuối quỹ đạo là máy bay xoay theo hướng bay. Hình rộng hơn chữ "o" nên có lề âm để khoảng cách chữ vẫn đều.
+const GlobeOrbit = () => (
+  <svg className="logo__globe" viewBox="-13 -9 26 18" aria-hidden="true">
+    <g fill="none" stroke="currentColor">
+      <circle r="6.6" strokeWidth="2.3" />
+      <ellipse rx="2.9" ry="6.6" strokeWidth="1.3" />
+      <path d="M-6.6 0H6.6" strokeWidth="1.3" />
+    </g>
+    <path d="M-11.2 3.6C-7 7.6 5.4 5.6 9.4-1.4" fill="none" stroke="#ff6a13" strokeWidth="1.5" strokeLinecap="round" />
+    <g className="logo__plane">
+      <path
+        d={PLANE_PATH}
+        fill="#ff6a13"
+        transform={`translate(11.7 -5.3) rotate(-60) scale(0.0174) translate(${-PLANE_WIDTH / 2} ${-PLANE_HEIGHT / 2})`}
+      />
+    </g>
+  </svg>
+);
+
+// variant "dark" dùng trên nền sáng (navbar), "light" dùng trên nền tối (footer).
+// Favicon (public/favicon.svg) là chữ T và máy bay cam vì ở cỡ 16px quả địa cầu bị rối.
+const Logo = ({ variant = 'dark' }) => (
+  <Link to="/" className={`logo logo--${variant}`} aria-label={`${siteInfo.name} - Trang chủ`}>
+    <span className="logo__name">
+      Travel
+      <span className="logo__name-highlight">
+        T<GlobeOrbit />
+        ur
       </span>
-    </Link>
-  );
-};
+    </span>
+  </Link>
+);
 
 export default Logo;

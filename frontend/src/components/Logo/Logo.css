@@ -2,18 +2,6 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 8px;
-}
-
-.logo__mark {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-}
-
-.logo:hover .logo__mark {
-  transform: rotate(-10deg);
 }
 
 .logo__name {
@@ -40,8 +28,27 @@
   color: #5aa2f5;
 }
 
+/* global.css cho svg hiển thị dạng khối; ở đây quả địa cầu phải nằm cùng dòng với chữ */
+.logo__globe {
+  display: inline-block;
+  width: 1.32em;
+  height: 0.95em;
+  margin: 0 -0.16em 0 -0.12em;
+  vertical-align: -0.1em;
+  overflow: visible;
+}
+
+.logo__plane {
+  transition: transform 0.3s ease;
+}
+
+/* Rê chuột vào logo: máy bay nhích lên theo hướng bay như đang cất cánh */
+.logo:hover .logo__plane {
+  transform: translate(0.6px, -1px);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .logo__mark {
+  .logo__plane {
     transition: none;
   }
 }
