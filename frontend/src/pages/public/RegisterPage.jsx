@@ -7,7 +7,7 @@ import FormField from '../../components/FormField/FormField.jsx';
 import PasswordInput from '../../components/PasswordInput/PasswordInput.jsx';
 import * as authApi from '../../api/authApi.js';
 import { getErrorMessage } from '../../api/axiosClient.js';
-import { EMAIL_PATTERN, PHONE_PATTERN, MIN_PASSWORD_LENGTH } from '../../utils/validation.js';
+import { EMAIL_PATTERN, PHONE_PATTERN, PASSWORD_HINT, getPasswordError } from '../../utils/validation.js';
 
 const initialForm = { ho_ten: '', email: '', so_dien_thoai: '', mat_khau: '', xac_nhan_mat_khau: '' };
 
@@ -27,9 +27,8 @@ const validate = (form) => {
     errors.so_dien_thoai = 'Số điện thoại gồm 10 chữ số và bắt đầu bằng 0';
   }
 
-  if (form.mat_khau.length < MIN_PASSWORD_LENGTH) {
-    errors.mat_khau = `Mật khẩu phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`;
-  }
+  const passwordError = getPasswordError(form.mat_khau);
+  if (passwordError) errors.mat_khau = passwordError;
   if (!form.xac_nhan_mat_khau) errors.xac_nhan_mat_khau = 'Vui lòng nhập lại mật khẩu';
   else if (form.xac_nhan_mat_khau !== form.mat_khau) errors.xac_nhan_mat_khau = 'Mật khẩu nhập lại không khớp';
 
@@ -125,7 +124,7 @@ const RegisterPage = () => {
         </div>
 
         <div className="auth-form__row">
-          <FormField id="register-password" label="Mật khẩu" error={errors.mat_khau}>
+          <FormField id="register-password" label="Mật khẩu" error={errors.mat_khau} hint={PASSWORD_HINT}>
             <PasswordInput
               {...fieldProps('mat_khau', 'register-password')}
               className={errors.mat_khau ? 'input--error' : ''}
