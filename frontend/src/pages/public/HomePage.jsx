@@ -32,11 +32,9 @@ const HomePage = () => {
     <>
       <HeroSlider slides={heroSlides}>
         <h1 className="hero__title">
-          Tour trong nước,
-          <br />
-          khởi hành mỗi tuần
+          Tìm tour cho chuyến đi tiếp&nbsp;theo
         </h1>
-        <p className="hero__subtitle">Chọn điểm đến, xem lịch còn chỗ và giữ chỗ trong vài phút.</p>
+        <p className="hero__subtitle">Biển gọi, núi chờ. Xem lịch còn chỗ và giữ chỗ trong vài phút.</p>
       </HeroSlider>
 
       <div className="container">
