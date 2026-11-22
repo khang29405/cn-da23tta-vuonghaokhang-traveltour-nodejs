@@ -2,11 +2,11 @@ import bcrypt from 'bcrypt';
 import AppError from '../utils/AppError.js';
 import { ROLES, ACCOUNT_STATUS } from '../utils/constants.js';
 import { signToken, verifyToken } from '../utils/token.js';
+import { requirePassword } from '../utils/validation.js';
 import { findUserByEmail, findUserById, createUser } from '../models/user.model.js';
 
 // Giống giá trị trong scripts/hash-password.js
 const SALT_ROUNDS = 10;
-const MIN_PASSWORD_LENGTH = 6;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Số điện thoại Việt Nam: 10 chữ số, bắt đầu bằng 0
 const PHONE_PATTERN = /^0\d{9}$/;
@@ -24,16 +24,13 @@ const toPublicUser = ({ mat_khau, ...user }) => user;
 const validateRegisterInput = (body) => {
   const hoTen = toText(body.ho_ten);
   const email = toText(body.email).toLowerCase();
-  const matKhau = typeof body.mat_khau === 'string' ? body.mat_khau : '';
   const soDienThoai = toText(body.so_dien_thoai) || null;
   const diaChi = toText(body.dia_chi) || null;
 
   if (!hoTen) throw new AppError('Vui lòng nhập họ tên', 400);
   if (hoTen.length > 100) throw new AppError('Họ tên tối đa 100 ký tự', 400);
   if (!EMAIL_PATTERN.test(email) || email.length > 100) throw new AppError('Email không hợp lệ', 400);
-  if (matKhau.length < MIN_PASSWORD_LENGTH) {
-    throw new AppError(`Mật khẩu phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`, 400);
-  }
+  const matKhau = requirePassword(body.mat_khau);
   if (soDienThoai && !PHONE_PATTERN.test(soDienThoai)) {
     throw new AppError('Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0', 400);
   }

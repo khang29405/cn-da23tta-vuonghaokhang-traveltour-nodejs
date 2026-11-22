@@ -66,6 +66,28 @@ export const requireDate = (value, label) => {
   return value.trim();
 };
 
+export const MIN_PASSWORD_LENGTH = 8;
+// bcrypt chỉ băm 72 byte đầu, phần sau bị bỏ qua nên phải chặn độ dài.
+// Đếm theo byte UTF-8: chữ có dấu chiếm 2–3 byte nên mật khẩu có dấu được ít ký tự hơn.
+export const MAX_PASSWORD_BYTES = 72;
+
+// Mật khẩu mới (đăng ký, tạo nhân viên, đổi mật khẩu): 8–72 ký tự, có cả chữ cái và chữ số.
+// Đăng nhập không dùng hàm này để tài khoản cũ vẫn đăng nhập được.
+export const requirePassword = (value, label = 'mật khẩu') => {
+  const password = typeof value === 'string' ? value : '';
+  if (!password) throw new AppError(`Vui lòng nhập ${label}`, 400);
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    throw new AppError(`${capitalize(label)} phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`, 400);
+  }
+  if (Buffer.byteLength(password, 'utf8') > MAX_PASSWORD_BYTES) {
+    throw new AppError(`${capitalize(label)} tối đa ${MAX_PASSWORD_BYTES} ký tự`, 400);
+  }
+  if (!/\p{L}/u.test(password) || !/\d/.test(password)) {
+    throw new AppError(`${capitalize(label)} phải có cả chữ cái và chữ số`, 400);
+  }
+  return password;
+};
+
 // Mã trên đường dẫn (:id) phải là số nguyên dương
 export const parseId = (value) => {
   const id = Number(value);

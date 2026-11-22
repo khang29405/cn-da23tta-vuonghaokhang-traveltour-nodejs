@@ -35,7 +35,7 @@
                 "register"
               ]
             },
-            "description": "Khách đăng ký tài khoản. Tài khoản mới luôn có vai trò khách hàng: trường `vai_tro` gửi lên (nếu có) bị bỏ qua.\n\n**Quyền:** công khai, không cần token.\n\n**Body (JSON):**\n- `ho_ten` (bắt buộc, tối đa 100 ký tự)\n- `email` (bắt buộc, đúng định dạng, tối đa 100 ký tự; không phân biệt hoa thường)\n- `mat_khau` (bắt buộc, ít nhất 6 ký tự)\n- `so_dien_thoai` (không bắt buộc; 10 chữ số, bắt đầu bằng 0)\n- `dia_chi` (không bắt buộc, tối đa 255 ký tự)\n\n**Thành công:** 201 \"Đăng ký thành công, mời bạn đăng nhập\", `data` là tài khoản vừa tạo (không có mật khẩu).\n\n**Lỗi chính:**\n- 409 \"Email đã được sử dụng\"\n- 400 khi thiếu hoặc sai một trường, ví dụ \"Mật khẩu phải có ít nhất 6 ký tự\""
+            "description": "Khách đăng ký tài khoản. Tài khoản mới luôn có vai trò khách hàng: trường `vai_tro` gửi lên (nếu có) bị bỏ qua.\n\n**Quyền:** công khai, không cần token.\n\n**Body (JSON):**\n- `ho_ten` (bắt buộc, tối đa 100 ký tự)\n- `email` (bắt buộc, đúng định dạng, tối đa 100 ký tự; không phân biệt hoa thường)\n- `mat_khau` (bắt buộc, 8–72 ký tự, có cả chữ cái và chữ số; chữ có dấu tính 2–3 ký tự vì bcrypt chỉ băm 72 byte đầu)\n- `so_dien_thoai` (không bắt buộc; 10 chữ số, bắt đầu bằng 0)\n- `dia_chi` (không bắt buộc, tối đa 255 ký tự)\n\n**Thành công:** 201 \"Đăng ký thành công, mời bạn đăng nhập\", `data` là tài khoản vừa tạo (không có mật khẩu).\n\n**Lỗi chính:**\n- 409 \"Email đã được sử dụng\"\n- 400 khi thiếu hoặc sai một trường, ví dụ \"Vui lòng nhập họ tên\"\n- 400 \"Mật khẩu phải có ít nhất 8 ký tự\"\n- 400 \"Mật khẩu phải có cả chữ cái và chữ số\"\n- 400 \"Mật khẩu tối đa 72 ký tự\""
           },
           "response": [
             {
@@ -159,7 +159,7 @@
               "body": "{\n    \"success\": false,\n    \"message\": \"Vui lòng nhập họ tên\"\n}"
             },
             {
-              "name": "400 Mật khẩu dưới 6 ký tự",
+              "name": "400 Mật khẩu dưới 8 ký tự",
               "originalRequest": {
                 "method": "POST",
                 "header": [],
@@ -178,7 +178,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"ho_ten\": \"Nguyễn Văn An\",\n  \"email\": \"vanan2@gmail.com\",\n  \"mat_khau\": \"123\",\n  \"so_dien_thoai\": \"0912345678\",\n  \"dia_chi\": \"Phường Long Châu, Tỉnh Vĩnh Long\",\n  \"vai_tro\": \"quan_tri\"\n}",
+                  "raw": "{\n  \"ho_ten\": \"Nguyễn Văn An\",\n  \"email\": \"vanan2@gmail.com\",\n  \"mat_khau\": \"Abc123\",\n  \"so_dien_thoai\": \"0912345678\",\n  \"dia_chi\": \"Phường Long Châu, Tỉnh Vĩnh Long\",\n  \"vai_tro\": \"quan_tri\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -196,7 +196,87 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"success\": false,\n    \"message\": \"Mật khẩu phải có ít nhất 6 ký tự\"\n}"
+              "body": "{\n    \"success\": false,\n    \"message\": \"Mật khẩu phải có ít nhất 8 ký tự\"\n}"
+            },
+            {
+              "name": "400 Mật khẩu thiếu chữ cái hoặc chữ số",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/auth/register",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ho_ten\": \"Nguyễn Văn An\",\n  \"email\": \"vanan2@gmail.com\",\n  \"mat_khau\": \"matkhaumoi\",\n  \"so_dien_thoai\": \"0912345678\",\n  \"dia_chi\": \"Phường Long Châu, Tỉnh Vĩnh Long\",\n  \"vai_tro\": \"quan_tri\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Mật khẩu phải có cả chữ cái và chữ số\"\n}"
+            },
+            {
+              "name": "400 Mật khẩu quá 72 ký tự",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/auth/register",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ho_ten\": \"Nguyễn Văn An\",\n  \"email\": \"vanan2@gmail.com\",\n  \"mat_khau\": \"Matkhau111111111111111111111111111111111111111111111111111111111111111111\",\n  \"so_dien_thoai\": \"0912345678\",\n  \"dia_chi\": \"Phường Long Châu, Tỉnh Vĩnh Long\",\n  \"vai_tro\": \"quan_tri\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Mật khẩu tối đa 72 ký tự\"\n}"
             },
             {
               "name": "400 Số điện thoại sai định dạng",
