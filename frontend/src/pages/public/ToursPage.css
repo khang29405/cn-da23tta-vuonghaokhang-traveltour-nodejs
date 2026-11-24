@@ -1,0 +1,70 @@
+.tours-page {
+  padding-block: var(--space-5) var(--space-4);
+}
+
+.tours-page__header {
+  margin-block: var(--space-3) var(--space-5);
+}
+
+.tours-page__title {
+  font-size: var(--text-xl);
+}
+
+.tours-page__subtitle {
+  margin-top: 2px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.tours-page__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  list-style: none;
+  transition: opacity var(--transition);
+}
+
+.tours-page__grid--loading {
+  opacity: 0.6;
+}
+
+.tours-page__grid + .pagination {
+  margin-top: var(--space-6);
+}
+
+.tours-page__empty {
+  padding: var(--space-8) var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.tours-page__error {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tours-page__error .btn {
+  margin-left: auto;
+}
+
+@media (min-width: 560px) {
+  .tours-page__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .tours-page__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1140px) {
+  .tours-page__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

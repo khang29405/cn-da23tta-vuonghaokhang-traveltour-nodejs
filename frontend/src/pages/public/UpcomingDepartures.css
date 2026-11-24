@@ -1,0 +1,171 @@
+.departure-board {
+  display: grid;
+  gap: var(--space-2) var(--space-4);
+  list-style: none;
+}
+
+.departure-board__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  height: 100%;
+  padding: var(--space-2);
+  padding-right: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: inherit;
+  transition: border-color var(--transition);
+}
+
+.departure-board__row:hover {
+  border-color: var(--color-primary);
+}
+
+.departure-board__media {
+  position: relative;
+  display: block;
+  width: 128px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.departure-board .departure-board__image {
+  transition: opacity 0.3s ease, transform 0.4s ease;
+}
+
+.departure-board__row:hover .departure-board__image {
+  transform: scale(1.06);
+}
+
+/* Tờ lịch nhỏ ở góc ảnh: nền trắng hơi trong để không lấn ảnh, chỉ chữ tháng mang màu loại tour */
+.departure-board__date {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 34px;
+  padding-block: 2px 3px;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: var(--radius-sm);
+  line-height: 1.1;
+  text-align: center;
+}
+
+.departure-board__month {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--type-color);
+}
+
+.departure-board__day {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.departure-board__weekday {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.departure-board__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.4;
+}
+
+.departure-board__name {
+  display: -webkit-box;
+  overflow: hidden;
+  font-weight: 600;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.departure-board__row:hover .departure-board__name {
+  color: var(--color-primary);
+}
+
+.departure-board__facts {
+  margin-top: 2px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.departure-board__seats {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.departure-board__seats--few {
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
+.departure-board__price {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--color-accent);
+}
+
+.departure-board__arrow {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.departure-board__line {
+  width: 85%;
+  height: 14px;
+  margin-block: 4px;
+}
+
+.departure-board__line--short {
+  width: 50%;
+}
+
+/* Điện thoại: ảnh nhỏ hơn, giá xuống dưới tên tour cho đủ chỗ, chỉ hiện 5 lịch gần nhất */
+@media (max-width: 559px) {
+  .departure-board__row {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    padding-right: var(--space-2);
+  }
+
+  .departure-board__media {
+    width: 104px;
+  }
+
+  .departure-board__facts {
+    font-size: var(--text-xs);
+  }
+
+  .departure-board__price {
+    grid-column: 2;
+    margin-top: calc(-1 * var(--space-2));
+  }
+
+  .departure-board__arrow {
+    display: none;
+  }
+
+  .departure-board li:nth-child(n + 6) {
+    display: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .departure-board {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

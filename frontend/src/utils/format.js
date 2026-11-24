@@ -21,6 +21,25 @@ export const formatDateOnly = (dateString) => dateFormatter.format(parseDateOnly
 
 export const formatWeekday = (dateString) => weekdayFormatter.format(parseDateOnly(dateString));
 
+// Cộng số ngày vào ngày dạng YYYY-MM-DD (ví dụ tính ngày về của tour)
+export const addDays = (dateString, days) => {
+  const date = parseDateOnly(dateString);
+  date.setDate(date.getDate() + days);
+  return toDateInputValue(date);
+};
+
+// Thứ viết tắt kiểu lịch Việt Nam: CN, T2 ... T7
+export const formatWeekdayShort = (dateString) => {
+  const day = parseDateOnly(dateString).getDay();
+  return day === 0 ? 'CN' : `T${day + 1}`;
+};
+
+// 2026-11-26 → 26/11 (thẻ tour chỉ cần ngày và tháng)
+export const formatDayMonth = (dateString) => {
+  const [, month, day] = dateString.split('-');
+  return `${day}/${month}`;
+};
+
 const pad = (number) => String(number).padStart(2, '0');
 
 // Ngày theo giờ máy người dùng, dạng YYYY-MM-DD giống giá trị của input type="date"
