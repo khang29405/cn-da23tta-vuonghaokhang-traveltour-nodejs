@@ -169,7 +169,3 @@ Các tài liệu của đồ án đặt trong thư mục `docs/`:
 - Sơ đồ use case và mô hình ERD (file `.png` và file gốc `.drawio`).
 - Bộ sưu tập Postman các API (`TravelTour.postman_collection.json`): trong Postman chọn **Import** rồi chọn file này. Gửi request đăng nhập trước để lấy token cho các API cần đăng nhập.
 - Báo cáo đồ án (sẽ bổ sung khi hoàn thành).
-
-## Lưu ý
-
-- Thông tin công ty hiển thị trên website (tên, hotline, địa chỉ) là dữ liệu mẫu, khai báo ở `frontend/src/config/siteInfo.js`.
