@@ -4,6 +4,7 @@ import DashboardLayout from '../components/DashboardLayout/DashboardLayout.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import GuestRoute from './GuestRoute.jsx';
 import HomePage from '../pages/public/HomePage.jsx';
+import ToursPage from '../pages/public/ToursPage.jsx';
 import LoginPage from '../pages/public/LoginPage.jsx';
 import RegisterPage from '../pages/public/RegisterPage.jsx';
 import NotFoundPage from '../pages/public/NotFoundPage.jsx';
@@ -31,6 +32,7 @@ const AppRouter = () => (
   <Routes>
     <Route element={<Layout />}>
       <Route index element={<HomePage />} />
+      <Route path="tour" element={<ToursPage />} />
       <Route element={<GuestRoute />}>
         <Route path="dang-nhap" element={<LoginPage />} />
         <Route path="dang-ky" element={<RegisterPage />} />
