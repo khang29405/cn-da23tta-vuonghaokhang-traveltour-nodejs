@@ -1,10 +1,29 @@
 import { sql, getPool } from '../config/db.js';
-import { BOOKING_STATUS } from '../utils/constants.js';
+import { BOOKING_STATUS, DEPARTURE_STATUS } from '../utils/constants.js';
 
 // Bảng LICH_KHOI_HANH (đọc thêm DON_DAT_TOUR để tính số chỗ đã đặt).
 // Hàm ghi nhận `transaction` từ service khi cần; không truyền thì chạy thẳng trên pool.
 
 const createRequest = async (transaction) => new sql.Request(transaction ?? (await getPool()));
+
+// Lịch "còn chỗ" (khách xem và đặt được) = đang mở bán, còn ít nhất 1 chỗ, khởi hành sau hôm nay
+// (giống điều kiện tạo lịch: ngày khởi hành phải sau hôm nay). Câu SQL dùng điều kiện này phải đặt alias bảng lịch là l.
+export const BOOKABLE_DEPARTURE = 'l.trang_thai = @openStatus AND l.so_cho_con_lai > 0 AND l.ngay_khoi_hanh > @today';
+
+export const bindBookableInputs = (request, today) =>
+  request.input('openStatus', sql.VarChar(20), DEPARTURE_STATUS.OPEN).input('today', sql.Date, today);
+
+// Các lịch còn chỗ của một tour cho trang chi tiết, ngày gần nhất trước
+export const findBookableDeparturesByTour = async (tourId, today) => {
+  const request = bindBookableInputs(await createRequest(), today);
+  const result = await request.input('tourId', sql.Int, tourId).query(`
+    SELECT l.ma_lich_khoi_hanh, CONVERT(CHAR(10), l.ngay_khoi_hanh, 23) AS ngay_khoi_hanh,
+           l.tong_so_cho, l.so_cho_con_lai
+    FROM LICH_KHOI_HANH l
+    WHERE l.ma_tour = @tourId AND ${BOOKABLE_DEPARTURE}
+    ORDER BY l.ngay_khoi_hanh, l.ma_lich_khoi_hanh`);
+  return result.recordset;
+};
 
 // Ngày trả về dạng chuỗi YYYY-MM-DD (CONVERT kiểu 23) thay vì đối tượng Date để không lệch múi giờ.
 // so_cho_da_dat: tổng khách của các đơn chưa hủy; so_don: số đơn (kể cả đơn đã hủy) để biết có xóa được không.

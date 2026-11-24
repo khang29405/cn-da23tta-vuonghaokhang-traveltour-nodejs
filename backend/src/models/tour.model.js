@@ -1,4 +1,5 @@
 import { sql, getPool } from '../config/db.js';
+import { BOOKABLE_DEPARTURE, bindBookableInputs } from './departure.model.js';
 
 // Bảng TOUR, LICH_TRINH (và đọc ANH_TOUR, LICH_KHOI_HANH khi cần).
 // Hàm ghi nhận `transaction` từ service để nhiều câu lệnh cùng thành công hoặc cùng hủy;
@@ -129,6 +130,88 @@ export const countDeparturesByTour = async (tourId) => {
     .input('tourId', sql.Int, tourId)
     .query('SELECT COUNT(*) AS so_lich FROM LICH_KHOI_HANH WHERE ma_tour = @tourId');
   return result.recordset[0].so_lich;
+};
+
+/* ---------- Đọc cho khách (công khai) ---------- */
+
+// Dữ liệu thẻ tour dùng chung cho /api/tours/home và /api/tours (cùng định dạng).
+// Các cột "gần nhất" lấy từ lịch còn chỗ gần nhất (OUTER APPLY nên tour chưa có lịch còn chỗ vẫn có mặt, các cột này là NULL).
+const TOUR_CARD_COLUMNS = `
+  t.ma_tour, t.ten_tour, t.so_ngay, t.so_dem, t.gia,
+  t.ma_loai_tour, lt.ten_loai_tour,
+  t.ma_diem_den, dd.ten_diem_den,
+  t.ma_diem_khoi_hanh, dkh.ten_diem_khoi_hanh,
+  t.ma_phuong_tien, pt.ten_phuong_tien,
+  (SELECT TOP 1 a.duong_dan_anh FROM ANH_TOUR a
+   WHERE a.ma_tour = t.ma_tour
+   ORDER BY a.la_anh_dai_dien DESC, a.thu_tu_hien_thi, a.ma_anh) AS anh_dai_dien,
+  gn.ma_lich_khoi_hanh AS ma_lich_gan_nhat,
+  CONVERT(CHAR(10), gn.ngay_khoi_hanh, 23) AS ngay_khoi_hanh_gan_nhat,
+  gn.so_cho_con_lai AS so_cho_con_lai_gan_nhat`;
+
+const TOUR_CARD_FROM = `
+  ${TOUR_JOINS}
+  OUTER APPLY (
+    SELECT TOP 1 l.ma_lich_khoi_hanh, l.ngay_khoi_hanh, l.so_cho_con_lai
+    FROM LICH_KHOI_HANH l
+    WHERE l.ma_tour = t.ma_tour AND ${BOOKABLE_DEPARTURE}
+    ORDER BY l.ngay_khoi_hanh, l.ma_lich_khoi_hanh
+  ) gn
+  WHERE t.trang_thai_hien_thi = 1`;
+
+// Thứ tự mặc định cho khách: tour có lịch còn chỗ lên trước (ngày gần nhất trước), sau đó tour mới thêm
+const NEAREST_FIRST = `CASE WHEN gn.ngay_khoi_hanh IS NULL THEN 1 ELSE 0 END, gn.ngay_khoi_hanh,
+  t.ngay_tao DESC, t.ma_tour DESC`;
+
+const createCardRequest = async (today) => bindBookableInputs(await createRequest(), today);
+
+// Dải "Sắp khởi hành": chỉ tour có lịch còn chỗ
+export const findUpcomingTourCards = async (today, limit) => {
+  const request = await createCardRequest(today);
+  const result = await request.input('limit', sql.Int, limit).query(`
+    SELECT TOP (@limit) ${TOUR_CARD_COLUMNS} ${TOUR_CARD_FROM}
+      AND gn.ma_lich_khoi_hanh IS NOT NULL
+    ORDER BY gn.ngay_khoi_hanh, t.ma_tour`);
+  return result.recordset;
+};
+
+// Dải "Tour mới": tour mới thêm trước, kể cả tour chưa có lịch còn chỗ
+export const findNewestTourCards = async (today, limit) => {
+  const request = await createCardRequest(today);
+  const result = await request.input('limit', sql.Int, limit).query(`
+    SELECT TOP (@limit) ${TOUR_CARD_COLUMNS} ${TOUR_CARD_FROM}
+    ORDER BY t.ngay_tao DESC, t.ma_tour DESC`);
+  return result.recordset;
+};
+
+// Mỗi loại tour lấy tối đa @limit tour (ROW_NUMBER đánh số trong từng loại); loại không có tour hiển thị thì không có dòng.
+// Cột thu_tu chỉ dùng để lọc, service bỏ đi trước khi trả về.
+export const findTourCardsByType = async (today, limitPerType) => {
+  const request = await createCardRequest(today);
+  const result = await request.input('limit', sql.Int, limitPerType).query(`
+    SELECT * FROM (
+      SELECT ${TOUR_CARD_COLUMNS},
+        ROW_NUMBER() OVER (PARTITION BY t.ma_loai_tour ORDER BY ${NEAREST_FIRST}) AS thu_tu
+      ${TOUR_CARD_FROM}
+    ) x
+    WHERE x.thu_tu <= @limit
+    ORDER BY x.ma_loai_tour, x.thu_tu`);
+  return result.recordset;
+};
+
+export const countVisibleTours = async () => {
+  const request = await createRequest();
+  const result = await request.query('SELECT COUNT(*) AS total FROM TOUR t WHERE t.trang_thai_hien_thi = 1');
+  return result.recordset[0].total;
+};
+
+export const findVisibleTourCards = async (today, { offset, limit }) => {
+  const request = await createCardRequest(today);
+  const result = await request.input('offset', sql.Int, offset).input('limit', sql.Int, limit).query(`
+    SELECT ${TOUR_CARD_COLUMNS} ${TOUR_CARD_FROM}
+    ORDER BY ${NEAREST_FIRST}
+    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`);
+  return result.recordset;
 };
 
 /* ---------- Ghi (gọi trong transaction) ---------- */

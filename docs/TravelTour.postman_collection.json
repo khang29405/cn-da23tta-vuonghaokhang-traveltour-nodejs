@@ -2155,6 +2155,325 @@
       "description": "Danh mục dùng cho tour: loại tour, điểm đến, điểm khởi hành, phương tiện. Xem danh sách là công khai (`/categories/...`); thêm, sửa, xóa chỉ dành cho quản trị viên (`/admin/...`). Danh mục không phân trang."
     },
     {
+      "name": "tours",
+      "description": "Xem tour dành cho khách: dữ liệu trang chủ, danh sách tour, chi tiết tour.\n\n**Quyền:** công khai, không cần token.\n\nChỉ trả tour đang hiện (`trang_thai_hien_thi` = 1); tour đang ẩn không xuất hiện ở cả ba API.\n\n**Lịch còn chỗ** = lịch đang mở bán (`mo`), còn ít nhất 1 chỗ và khởi hành sau hôm nay. Lịch hết chỗ, đã khởi hành, đã hủy hoặc khởi hành hôm nay không được tính.",
+      "item": [
+        {
+          "name": "get home tours",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/tours/home",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tours",
+                "home"
+              ]
+            },
+            "description": "Dữ liệu các dải tour ở trang chủ trong một lần gọi. Mỗi nhóm tối đa 8 tour.\n\n**Quyền:** công khai, không cần token.\n\n**Thành công:** 200 \"Dữ liệu trang chủ\", `data` gồm:\n- `sap_khoi_hanh`: tour có lịch còn chỗ, lịch gần nhất đứng trước\n- `tour_moi`: tour mới thêm đứng trước (kể cả tour chưa có lịch còn chỗ)\n- `theo_loai_tour`: mảng `{ ma_loai_tour, ten_loai_tour, danh_sach_tour }`; loại tour không có tour đang hiện thì bỏ qua. Trong mỗi loại, tour có lịch còn chỗ gần nhất đứng trước.\n\nMỗi thẻ tour gồm: `ma_tour`, `ten_tour`, `so_ngay`, `so_dem`, `gia`, loại tour, điểm đến, điểm khởi hành, phương tiện (mã và tên), `anh_dai_dien` (`null` khi chưa có ảnh) và lịch còn chỗ gần nhất: `ma_lich_gan_nhat`, `ngay_khoi_hanh_gan_nhat` (YYYY-MM-DD), `so_cho_con_lai_gan_nhat` (cả ba là `null` khi tour chưa có lịch còn chỗ).\n\nExample được chụp sau khi chuẩn bị bằng SQL: lịch gần nhất của tour Ninh Bình hết chỗ (nên lịch gần nhất là lịch kế tiếp), thêm lịch Phú Quốc khởi hành hôm nay (không được tính); loại tour \"Tâm linh\" chưa có tour nên không có trong `theo_loai_tour`."
+          },
+          "response": [
+            {
+              "name": "200 Dữ liệu trang chủ",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/tours/home",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "tours",
+                    "home"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Dữ liệu trang chủ\",\n    \"data\": {\n        \"sap_khoi_hanh\": [\n            {\n                \"ma_tour\": 2,\n                \"ten_tour\": \"Đà Lạt 3 ngày 2 đêm: Langbiang và đồi chè Cầu Đất\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 2890000,\n                \"ma_loai_tour\": 4,\n                \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                \"ma_diem_den\": 2,\n                \"ten_diem_den\": \"Đà Lạt\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 5,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-11-30\",\n                \"so_cho_con_lai_gan_nhat\": 35\n            },\n            {\n                \"ma_tour\": 4,\n                \"ten_tour\": \"Hạ Long 2 ngày 1 đêm: ngủ đêm trên du thuyền\",\n                \"so_ngay\": 2,\n                \"so_dem\": 1,\n                \"gia\": 3690000,\n                \"ma_loai_tour\": 4,\n                \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                \"ma_diem_den\": 4,\n                \"ten_diem_den\": \"Hạ Long\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 9,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-02\",\n                \"so_cho_con_lai_gan_nhat\": 24\n            },\n            {\n                \"ma_tour\": 1,\n                \"ten_tour\": \"Phú Quốc 3 ngày 2 đêm: Nam đảo và cáp treo Hòn Thơm\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 4590000,\n                \"ma_loai_tour\": 1,\n                \"ten_loai_tour\": \"Biển đảo\",\n                \"ma_diem_den\": 1,\n                \"ten_diem_den\": \"Phú Quốc\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 1,\n                \"ten_phuong_tien\": \"Máy bay\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 2,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                \"so_cho_con_lai_gan_nhat\": 30\n            },\n            {\n                \"ma_tour\": 7,\n                \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n                \"so_ngay\": 1,\n                \"so_dem\": 0,\n                \"gia\": 1190000,\n                \"ma_loai_tour\": 6,\n                \"ten_loai_tour\": \"Khám phá\",\n                \"ma_diem_den\": 8,\n                \"ten_diem_den\": \"Ninh Bình\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 16,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                \"so_cho_con_lai_gan_nhat\": 40\n            },\n            {\n                \"ma_tour\": 3,\n                \"ten_tour\": \"Sa Pa 3 ngày 2 đêm: chinh phục Fansipan\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 3250000,\n                \"ma_loai_tour\": 2,\n                \"ten_loai_tour\": \"Núi rừng\",\n                \"ma_diem_den\": 3,\n                \"ten_diem_den\": \"Sa Pa\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 7,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-05\",\n                \"so_cho_con_lai_gan_nhat\": 20\n            },\n            {\n                \"ma_tour\": 5,\n                \"ten_tour\": \"Hội An 3 ngày 2 đêm: phố cổ và ẩm thực xứ Quảng\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 5290000,\n                \"ma_loai_tour\": 5,\n                \"ten_loai_tour\": \"Ẩm thực\",\n                \"ma_diem_den\": 5,\n                \"ten_diem_den\": \"Hội An\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 1,\n                \"ten_phuong_tien\": \"Máy bay\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 12,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-07\",\n                \"so_cho_con_lai_gan_nhat\": 25\n            },\n            {\n                \"ma_tour\": 6,\n                \"ten_tour\": \"Huế 4 ngày 3 đêm: cố đô và nhã nhạc cung đình\",\n                \"so_ngay\": 4,\n                \"so_dem\": 3,\n                \"gia\": 3990000,\n                \"ma_loai_tour\": 3,\n                \"ten_loai_tour\": \"Văn hóa – lịch sử\",\n                \"ma_diem_den\": 7,\n                \"ten_diem_den\": \"Huế\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 3,\n                \"ten_phuong_tien\": \"Tàu hỏa\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 14,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-11\",\n                \"so_cho_con_lai_gan_nhat\": 30\n            }\n        ],\n        \"tour_moi\": [\n            {\n                \"ma_tour\": 7,\n                \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n                \"so_ngay\": 1,\n                \"so_dem\": 0,\n                \"gia\": 1190000,\n                \"ma_loai_tour\": 6,\n                \"ten_loai_tour\": \"Khám phá\",\n                \"ma_diem_den\": 8,\n                \"ten_diem_den\": \"Ninh Bình\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 16,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                \"so_cho_con_lai_gan_nhat\": 40\n            },\n            {\n                \"ma_tour\": 6,\n                \"ten_tour\": \"Huế 4 ngày 3 đêm: cố đô và nhã nhạc cung đình\",\n                \"so_ngay\": 4,\n                \"so_dem\": 3,\n                \"gia\": 3990000,\n                \"ma_loai_tour\": 3,\n                \"ten_loai_tour\": \"Văn hóa – lịch sử\",\n                \"ma_diem_den\": 7,\n                \"ten_diem_den\": \"Huế\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 3,\n                \"ten_phuong_tien\": \"Tàu hỏa\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 14,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-11\",\n                \"so_cho_con_lai_gan_nhat\": 30\n            },\n            {\n                \"ma_tour\": 5,\n                \"ten_tour\": \"Hội An 3 ngày 2 đêm: phố cổ và ẩm thực xứ Quảng\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 5290000,\n                \"ma_loai_tour\": 5,\n                \"ten_loai_tour\": \"Ẩm thực\",\n                \"ma_diem_den\": 5,\n                \"ten_diem_den\": \"Hội An\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 1,\n                \"ten_phuong_tien\": \"Máy bay\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 12,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-07\",\n                \"so_cho_con_lai_gan_nhat\": 25\n            },\n            {\n                \"ma_tour\": 4,\n                \"ten_tour\": \"Hạ Long 2 ngày 1 đêm: ngủ đêm trên du thuyền\",\n                \"so_ngay\": 2,\n                \"so_dem\": 1,\n                \"gia\": 3690000,\n                \"ma_loai_tour\": 4,\n                \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                \"ma_diem_den\": 4,\n                \"ten_diem_den\": \"Hạ Long\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 9,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-02\",\n                \"so_cho_con_lai_gan_nhat\": 24\n            },\n            {\n                \"ma_tour\": 3,\n                \"ten_tour\": \"Sa Pa 3 ngày 2 đêm: chinh phục Fansipan\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 3250000,\n                \"ma_loai_tour\": 2,\n                \"ten_loai_tour\": \"Núi rừng\",\n                \"ma_diem_den\": 3,\n                \"ten_diem_den\": \"Sa Pa\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 7,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-05\",\n                \"so_cho_con_lai_gan_nhat\": 20\n            },\n            {\n                \"ma_tour\": 2,\n                \"ten_tour\": \"Đà Lạt 3 ngày 2 đêm: Langbiang và đồi chè Cầu Đất\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 2890000,\n                \"ma_loai_tour\": 4,\n                \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                \"ma_diem_den\": 2,\n                \"ten_diem_den\": \"Đà Lạt\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 5,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-11-30\",\n                \"so_cho_con_lai_gan_nhat\": 35\n            },\n            {\n                \"ma_tour\": 1,\n                \"ten_tour\": \"Phú Quốc 3 ngày 2 đêm: Nam đảo và cáp treo Hòn Thơm\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 4590000,\n                \"ma_loai_tour\": 1,\n                \"ten_loai_tour\": \"Biển đảo\",\n                \"ma_diem_den\": 1,\n                \"ten_diem_den\": \"Phú Quốc\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 1,\n                \"ten_phuong_tien\": \"Máy bay\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 2,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                \"so_cho_con_lai_gan_nhat\": 30\n            }\n        ],\n        \"theo_loai_tour\": [\n            {\n                \"ma_loai_tour\": 1,\n                \"ten_loai_tour\": \"Biển đảo\",\n                \"danh_sach_tour\": [\n                    {\n                        \"ma_tour\": 1,\n                        \"ten_tour\": \"Phú Quốc 3 ngày 2 đêm: Nam đảo và cáp treo Hòn Thơm\",\n                        \"so_ngay\": 3,\n                        \"so_dem\": 2,\n                        \"gia\": 4590000,\n                        \"ma_loai_tour\": 1,\n                        \"ten_loai_tour\": \"Biển đảo\",\n                        \"ma_diem_den\": 1,\n                        \"ten_diem_den\": \"Phú Quốc\",\n                        \"ma_diem_khoi_hanh\": 1,\n                        \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                        \"ma_phuong_tien\": 1,\n                        \"ten_phuong_tien\": \"Máy bay\",\n                        \"anh_dai_dien\": null,\n                        \"ma_lich_gan_nhat\": 2,\n                        \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                        \"so_cho_con_lai_gan_nhat\": 30\n                    }\n                ]\n            },\n            {\n                \"ma_loai_tour\": 2,\n                \"ten_loai_tour\": \"Núi rừng\",\n                \"danh_sach_tour\": [\n                    {\n                        \"ma_tour\": 3,\n                        \"ten_tour\": \"Sa Pa 3 ngày 2 đêm: chinh phục Fansipan\",\n                        \"so_ngay\": 3,\n                        \"so_dem\": 2,\n                        \"gia\": 3250000,\n                        \"ma_loai_tour\": 2,\n                        \"ten_loai_tour\": \"Núi rừng\",\n                        \"ma_diem_den\": 3,\n                        \"ten_diem_den\": \"Sa Pa\",\n                        \"ma_diem_khoi_hanh\": 2,\n                        \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                        \"ma_phuong_tien\": 2,\n                        \"ten_phuong_tien\": \"Ô tô\",\n                        \"anh_dai_dien\": null,\n                        \"ma_lich_gan_nhat\": 7,\n                        \"ngay_khoi_hanh_gan_nhat\": \"2026-12-05\",\n                        \"so_cho_con_lai_gan_nhat\": 20\n                    }\n                ]\n            },\n            {\n                \"ma_loai_tour\": 3,\n                \"ten_loai_tour\": \"Văn hóa – lịch sử\",\n                \"danh_sach_tour\": [\n                    {\n                        \"ma_tour\": 6,\n                        \"ten_tour\": \"Huế 4 ngày 3 đêm: cố đô và nhã nhạc cung đình\",\n                        \"so_ngay\": 4,\n                        \"so_dem\": 3,\n                        \"gia\": 3990000,\n                        \"ma_loai_tour\": 3,\n                        \"ten_loai_tour\": \"Văn hóa – lịch sử\",\n                        \"ma_diem_den\": 7,\n                        \"ten_diem_den\": \"Huế\",\n                        \"ma_diem_khoi_hanh\": 2,\n                        \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                        \"ma_phuong_tien\": 3,\n                        \"ten_phuong_tien\": \"Tàu hỏa\",\n                        \"anh_dai_dien\": null,\n                        \"ma_lich_gan_nhat\": 14,\n                        \"ngay_khoi_hanh_gan_nhat\": \"2026-12-11\",\n                        \"so_cho_con_lai_gan_nhat\": 30\n                    }\n                ]\n            },\n            {\n                \"ma_loai_tour\": 4,\n                \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                \"danh_sach_tour\": [\n                    {\n                        \"ma_tour\": 2,\n                        \"ten_tour\": \"Đà Lạt 3 ngày 2 đêm: Langbiang và đồi chè Cầu Đất\",\n                        \"so_ngay\": 3,\n                        \"so_dem\": 2,\n                        \"gia\": 2890000,\n                        \"ma_loai_tour\": 4,\n                        \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                        \"ma_diem_den\": 2,\n                        \"ten_diem_den\": \"Đà Lạt\",\n                        \"ma_diem_khoi_hanh\": 1,\n                        \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                        \"ma_phuong_tien\": 2,\n                        \"ten_phuong_tien\": \"Ô tô\",\n                        \"anh_dai_dien\": null,\n                        \"ma_lich_gan_nhat\": 5,\n                        \"ngay_khoi_hanh_gan_nhat\": \"2026-11-30\",\n                        \"so_cho_con_lai_gan_nhat\": 35\n                    },\n                    {\n                        \"ma_tour\": 4,\n                        \"ten_tour\": \"Hạ Long 2 ngày 1 đêm: ngủ đêm trên du thuyền\",\n                        \"so_ngay\": 2,\n                        \"so_dem\": 1,\n                        \"gia\": 3690000,\n                        \"ma_loai_tour\": 4,\n                        \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                        \"ma_diem_den\": 4,\n                        \"ten_diem_den\": \"Hạ Long\",\n                        \"ma_diem_khoi_hanh\": 2,\n                        \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                        \"ma_phuong_tien\": 2,\n                        \"ten_phuong_tien\": \"Ô tô\",\n                        \"anh_dai_dien\": null,\n                        \"ma_lich_gan_nhat\": 9,\n                        \"ngay_khoi_hanh_gan_nhat\": \"2026-12-02\",\n                        \"so_cho_con_lai_gan_nhat\": 24\n                    }\n                ]\n            },\n            {\n                \"ma_loai_tour\": 5,\n                \"ten_loai_tour\": \"Ẩm thực\",\n                \"danh_sach_tour\": [\n                    {\n                        \"ma_tour\": 5,\n                        \"ten_tour\": \"Hội An 3 ngày 2 đêm: phố cổ và ẩm thực xứ Quảng\",\n                        \"so_ngay\": 3,\n                        \"so_dem\": 2,\n                        \"gia\": 5290000,\n                        \"ma_loai_tour\": 5,\n                        \"ten_loai_tour\": \"Ẩm thực\",\n                        \"ma_diem_den\": 5,\n                        \"ten_diem_den\": \"Hội An\",\n                        \"ma_diem_khoi_hanh\": 1,\n                        \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                        \"ma_phuong_tien\": 1,\n                        \"ten_phuong_tien\": \"Máy bay\",\n                        \"anh_dai_dien\": null,\n                        \"ma_lich_gan_nhat\": 12,\n                        \"ngay_khoi_hanh_gan_nhat\": \"2026-12-07\",\n                        \"so_cho_con_lai_gan_nhat\": 25\n                    }\n                ]\n            },\n            {\n                \"ma_loai_tour\": 6,\n                \"ten_loai_tour\": \"Khám phá\",\n                \"danh_sach_tour\": [\n                    {\n                        \"ma_tour\": 7,\n                        \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n                        \"so_ngay\": 1,\n                        \"so_dem\": 0,\n                        \"gia\": 1190000,\n                        \"ma_loai_tour\": 6,\n                        \"ten_loai_tour\": \"Khám phá\",\n                        \"ma_diem_den\": 8,\n                        \"ten_diem_den\": \"Ninh Bình\",\n                        \"ma_diem_khoi_hanh\": 2,\n                        \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                        \"ma_phuong_tien\": 2,\n                        \"ten_phuong_tien\": \"Ô tô\",\n                        \"anh_dai_dien\": null,\n                        \"ma_lich_gan_nhat\": 16,\n                        \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                        \"so_cho_con_lai_gan_nhat\": 40\n                    }\n                ]\n            }\n        ]\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "get tours",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/tours?page=1&limit=12",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tours"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "12"
+                }
+              ]
+            },
+            "description": "Danh sách tour đang hiện, có phân trang. Tour có lịch còn chỗ đứng trước (lịch gần nhất trước), sau đó đến tour mới thêm. Tìm kiếm, lọc, sắp xếp sẽ thêm ở Bước 18.\n\n**Quyền:** công khai, không cần token.\n\n**Query:** `page` (mặc định 1), `limit` (mặc định 12, tối đa 50). Giá trị sai hoặc vượt giới hạn được đưa về giá trị hợp lệ gần nhất.\n\n**Thành công:** 200 \"Danh sách tour\", `data` = `{ items, pagination }`. Mỗi thẻ tour gồm: `ma_tour`, `ten_tour`, `so_ngay`, `so_dem`, `gia`, loại tour, điểm đến, điểm khởi hành, phương tiện (mã và tên), `anh_dai_dien` (`null` khi chưa có ảnh) và lịch còn chỗ gần nhất: `ma_lich_gan_nhat`, `ngay_khoi_hanh_gan_nhat` (YYYY-MM-DD), `so_cho_con_lai_gan_nhat` (cả ba là `null` khi tour chưa có lịch còn chỗ). Cùng định dạng với thẻ tour ở `/tours/home`."
+          },
+          "response": [
+            {
+              "name": "200 Trang 1, 12 tour mỗi trang",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/tours?page=1&limit=12",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "tours"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "12"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Danh sách tour\",\n    \"data\": {\n        \"items\": [\n            {\n                \"ma_tour\": 2,\n                \"ten_tour\": \"Đà Lạt 3 ngày 2 đêm: Langbiang và đồi chè Cầu Đất\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 2890000,\n                \"ma_loai_tour\": 4,\n                \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                \"ma_diem_den\": 2,\n                \"ten_diem_den\": \"Đà Lạt\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 5,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-11-30\",\n                \"so_cho_con_lai_gan_nhat\": 35\n            },\n            {\n                \"ma_tour\": 4,\n                \"ten_tour\": \"Hạ Long 2 ngày 1 đêm: ngủ đêm trên du thuyền\",\n                \"so_ngay\": 2,\n                \"so_dem\": 1,\n                \"gia\": 3690000,\n                \"ma_loai_tour\": 4,\n                \"ten_loai_tour\": \"Nghỉ dưỡng\",\n                \"ma_diem_den\": 4,\n                \"ten_diem_den\": \"Hạ Long\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 9,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-02\",\n                \"so_cho_con_lai_gan_nhat\": 24\n            },\n            {\n                \"ma_tour\": 7,\n                \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n                \"so_ngay\": 1,\n                \"so_dem\": 0,\n                \"gia\": 1190000,\n                \"ma_loai_tour\": 6,\n                \"ten_loai_tour\": \"Khám phá\",\n                \"ma_diem_den\": 8,\n                \"ten_diem_den\": \"Ninh Bình\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 16,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                \"so_cho_con_lai_gan_nhat\": 40\n            },\n            {\n                \"ma_tour\": 1,\n                \"ten_tour\": \"Phú Quốc 3 ngày 2 đêm: Nam đảo và cáp treo Hòn Thơm\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 4590000,\n                \"ma_loai_tour\": 1,\n                \"ten_loai_tour\": \"Biển đảo\",\n                \"ma_diem_den\": 1,\n                \"ten_diem_den\": \"Phú Quốc\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 1,\n                \"ten_phuong_tien\": \"Máy bay\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 2,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                \"so_cho_con_lai_gan_nhat\": 30\n            },\n            {\n                \"ma_tour\": 3,\n                \"ten_tour\": \"Sa Pa 3 ngày 2 đêm: chinh phục Fansipan\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 3250000,\n                \"ma_loai_tour\": 2,\n                \"ten_loai_tour\": \"Núi rừng\",\n                \"ma_diem_den\": 3,\n                \"ten_diem_den\": \"Sa Pa\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 7,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-05\",\n                \"so_cho_con_lai_gan_nhat\": 20\n            },\n            {\n                \"ma_tour\": 5,\n                \"ten_tour\": \"Hội An 3 ngày 2 đêm: phố cổ và ẩm thực xứ Quảng\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 5290000,\n                \"ma_loai_tour\": 5,\n                \"ten_loai_tour\": \"Ẩm thực\",\n                \"ma_diem_den\": 5,\n                \"ten_diem_den\": \"Hội An\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 1,\n                \"ten_phuong_tien\": \"Máy bay\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 12,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-07\",\n                \"so_cho_con_lai_gan_nhat\": 25\n            },\n            {\n                \"ma_tour\": 6,\n                \"ten_tour\": \"Huế 4 ngày 3 đêm: cố đô và nhã nhạc cung đình\",\n                \"so_ngay\": 4,\n                \"so_dem\": 3,\n                \"gia\": 3990000,\n                \"ma_loai_tour\": 3,\n                \"ten_loai_tour\": \"Văn hóa – lịch sử\",\n                \"ma_diem_den\": 7,\n                \"ten_diem_den\": \"Huế\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 3,\n                \"ten_phuong_tien\": \"Tàu hỏa\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 14,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-11\",\n                \"so_cho_con_lai_gan_nhat\": 30\n            }\n        ],\n        \"pagination\": {\n            \"page\": 1,\n            \"limit\": 12,\n            \"total\": 7,\n            \"totalPages\": 1\n        }\n    }\n}"
+            },
+            {
+              "name": "200 Trang 2, 3 tour mỗi trang",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/tours?page=2&limit=3",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "tours"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "2"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "3"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Danh sách tour\",\n    \"data\": {\n        \"items\": [\n            {\n                \"ma_tour\": 1,\n                \"ten_tour\": \"Phú Quốc 3 ngày 2 đêm: Nam đảo và cáp treo Hòn Thơm\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 4590000,\n                \"ma_loai_tour\": 1,\n                \"ten_loai_tour\": \"Biển đảo\",\n                \"ma_diem_den\": 1,\n                \"ten_diem_den\": \"Phú Quốc\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 1,\n                \"ten_phuong_tien\": \"Máy bay\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 2,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-03\",\n                \"so_cho_con_lai_gan_nhat\": 30\n            },\n            {\n                \"ma_tour\": 3,\n                \"ten_tour\": \"Sa Pa 3 ngày 2 đêm: chinh phục Fansipan\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 3250000,\n                \"ma_loai_tour\": 2,\n                \"ten_loai_tour\": \"Núi rừng\",\n                \"ma_diem_den\": 3,\n                \"ten_diem_den\": \"Sa Pa\",\n                \"ma_diem_khoi_hanh\": 2,\n                \"ten_diem_khoi_hanh\": \"Hà Nội\",\n                \"ma_phuong_tien\": 2,\n                \"ten_phuong_tien\": \"Ô tô\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 7,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-05\",\n                \"so_cho_con_lai_gan_nhat\": 20\n            },\n            {\n                \"ma_tour\": 5,\n                \"ten_tour\": \"Hội An 3 ngày 2 đêm: phố cổ và ẩm thực xứ Quảng\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"gia\": 5290000,\n                \"ma_loai_tour\": 5,\n                \"ten_loai_tour\": \"Ẩm thực\",\n                \"ma_diem_den\": 5,\n                \"ten_diem_den\": \"Hội An\",\n                \"ma_diem_khoi_hanh\": 1,\n                \"ten_diem_khoi_hanh\": \"TP. Hồ Chí Minh\",\n                \"ma_phuong_tien\": 1,\n                \"ten_phuong_tien\": \"Máy bay\",\n                \"anh_dai_dien\": null,\n                \"ma_lich_gan_nhat\": 12,\n                \"ngay_khoi_hanh_gan_nhat\": \"2026-12-07\",\n                \"so_cho_con_lai_gan_nhat\": 25\n            }\n        ],\n        \"pagination\": {\n            \"page\": 2,\n            \"limit\": 3,\n            \"total\": 7,\n            \"totalPages\": 3\n        }\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "get a tour",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/tours/{{tourId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tours",
+                "{{tourId}}"
+              ]
+            },
+            "description": "Chi tiết một tour đang hiện: thông tin tour, mô tả tổng quan, lịch trình theo ngày (`lich_trinh`), bộ ảnh (`anh_tour`, ảnh đại diện đứng đầu) và các lịch còn chỗ (`lich_khoi_hanh`: `ma_lich_khoi_hanh`, `ngay_khoi_hanh`, `tong_so_cho`, `so_cho_con_lai`; ngày gần nhất trước).\n\n**Quyền:** công khai, không cần token.\n\n**Thành công:** 200 \"Chi tiết tour\".\n\n**Lỗi chính:**\n- 404 \"Không tìm thấy tour\" khi tour không tồn tại hoặc đang ẩn\n- 400 \"Mã không hợp lệ\" khi mã tour không phải số nguyên dương\n\nExample 200 là tour Ninh Bình (mã 7) sau khi đặt lịch gần nhất thành hết chỗ bằng SQL: lịch đó không có trong `lich_khoi_hanh`."
+          },
+          "response": [
+            {
+              "name": "200 Chi tiết tour (lịch hết chỗ không hiện)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/tours/7",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "tours",
+                    "7"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Chi tiết tour\",\n    \"data\": {\n        \"ma_tour\": 7,\n        \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n        \"so_ngay\": 1,\n        \"so_dem\": 0,\n        \"gia\": 1190000,\n        \"ngay_tao\": \"2026-11-23T10:27:36.807Z\",\n        \"ma_loai_tour\": 6,\n        \"ten_loai_tour\": \"Khám phá\",\n        \"ma_diem_den\": 8,\n        \"ten_diem_den\": \"Ninh Bình\",\n        \"ma_diem_khoi_hanh\": 2,\n        \"ten_diem_khoi_hanh\": \"Hà Nội\",\n        \"ma_phuong_tien\": 2,\n        \"ten_phuong_tien\": \"Ô tô\",\n        \"mo_ta_tong_quan\": \"Xe đón tại Hà Nội buổi sáng, đi thuyền Tràng An qua các hang xuyên núi, leo 500 bậc đá lên đỉnh hang Múa, về Hà Nội buổi tối.\",\n        \"lich_trinh\": [\n            {\n                \"ma_lich_trinh\": 19,\n                \"ngay_thu\": 1,\n                \"tieu_de\": \"Hà Nội – Tràng An – hang Múa – Hà Nội\",\n                \"noi_dung_hoat_dong\": \"Xe đón lúc 7 giờ 30. Sáng đi thuyền Tràng An, trưa ăn cơm cháy dê núi, chiều leo hang Múa. Về Hà Nội khoảng 19 giờ.\"\n            }\n        ],\n        \"anh_tour\": [],\n        \"lich_khoi_hanh\": [\n            {\n                \"ma_lich_khoi_hanh\": 16,\n                \"ngay_khoi_hanh\": \"2026-12-03\",\n                \"tong_so_cho\": 40,\n                \"so_cho_con_lai\": 40\n            },\n            {\n                \"ma_lich_khoi_hanh\": 17,\n                \"ngay_khoi_hanh\": \"2026-12-10\",\n                \"tong_so_cho\": 40,\n                \"so_cho_con_lai\": 40\n            }\n        ]\n    }\n}"
+            },
+            {
+              "name": "404 Tour không tồn tại",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/tours/9999",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "tours",
+                    "9999"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Không tìm thấy tour\"\n}"
+            },
+            {
+              "name": "404 Tour đang ẩn",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/tours/8",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "tours",
+                    "8"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Không tìm thấy tour\"\n}"
+            },
+            {
+              "name": "400 Mã tour không hợp lệ",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/tours/abc",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "tours",
+                    "abc"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Mã không hợp lệ\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "admin/tours",
       "item": [
         {
