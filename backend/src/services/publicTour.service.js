@@ -3,12 +3,16 @@ import * as tourModel from '../models/tour.model.js';
 import * as departureModel from '../models/departure.model.js';
 import { getToday } from '../utils/date.js';
 import { parsePagination, buildPagination, toPaginatedData } from '../utils/pagination.js';
+import { toKeyword, toLikePattern, toFilterId, toFilterAmount } from '../utils/queryFilter.js';
+import { requireDate } from '../utils/validation.js';
 
 // Xem tour dành cho khách (không cần đăng nhập): chỉ tour đang hiện (trang_thai_hien_thi = 1)
 
 const HOME_GROUP_LIMIT = 8;
 // Lưới thẻ tour mặc định 12 tour mỗi trang (quy ước phân trang ở mục 3 kehoach.md)
 const CARD_GRID_LIMIT = 12;
+// Cột gia là DECIMAL(12, 0); giá lọc lớn hơn thì lấy giá trị này
+const MAX_PRICE = 999_999_999_999;
 
 // Gom các dòng (đã xếp theo loại tour) thành từng nhóm loại tour; bỏ cột thu_tu chỉ dùng để lọc trong SQL
 const groupByTourType = (rows) => {
@@ -35,10 +39,35 @@ export const getHomeTours = async () => {
   return { sap_khoi_hanh: sapKhoiHanh, tour_moi: tourMoi, theo_loai_tour: groupByTourType(theoLoai) };
 };
 
-// Danh sách tour có phân trang; tour có lịch còn chỗ gần nhất đứng trước (Bước 18 thêm lọc và sắp xếp)
+// Đọc bộ lọc của khách. Giống bộ lọc ở trang quản trị: giá trị sai thì bỏ qua bộ lọc đó, không báo lỗi;
+// riêng departureFrom sai định dạng hoặc không có thật thì trả 400 để giao diện báo ô ngày nhập sai.
+// minPrice > maxPrice không báo lỗi, chỉ là không có tour nào khớp.
+const parsePublicFilters = (query) => {
+  const keyword = toKeyword(query.keyword);
+  return {
+    keyword: keyword ? toLikePattern(keyword) : null,
+    tourType: toFilterId(query.tourType),
+    destination: toFilterId(query.destination),
+    departurePoint: toFilterId(query.departurePoint),
+    transport: toFilterId(query.transport),
+    minPrice: toFilterAmount(query.minPrice, MAX_PRICE),
+    maxPrice: toFilterAmount(query.maxPrice, MAX_PRICE),
+    departureFrom:
+      query.departureFrom === undefined || query.departureFrom === ''
+        ? null
+        : requireDate(query.departureFrom, 'ngày khởi hành'),
+    sort: tourModel.PUBLIC_TOUR_SORTS.includes(query.sort) ? query.sort : null,
+  };
+};
+
+// Danh sách tour có lọc, sắp xếp, phân trang. Các bộ lọc kết hợp với nhau (AND).
+// Không chọn sort thì tour có lịch còn chỗ gần nhất đứng trước.
 export const getTours = async (query) => {
-  const pagination = buildPagination(parsePagination(query, CARD_GRID_LIMIT), await tourModel.countVisibleTours());
-  const tours = await tourModel.findVisibleTourCards(getToday(), pagination);
+  const filters = parsePublicFilters(query);
+  const today = getToday();
+  const total = await tourModel.countPublicTours(today, filters);
+  const pagination = buildPagination(parsePagination(query, CARD_GRID_LIMIT), total);
+  const tours = await tourModel.findPublicTourCards(today, filters, pagination);
   return toPaginatedData(tours, pagination);
 };
 

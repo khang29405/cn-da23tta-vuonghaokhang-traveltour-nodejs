@@ -3,6 +3,7 @@ import * as tourModel from '../models/tour.model.js';
 import { runInTransaction } from '../utils/transaction.js';
 import { removeUploadedFiles } from '../utils/uploadStorage.js';
 import { parsePagination, buildPagination, toPaginatedData } from '../utils/pagination.js';
+import { toKeyword, toLikePattern, toFilterId } from '../utils/queryFilter.js';
 import {
   requireText,
   optionalText,
@@ -80,26 +81,16 @@ const saveItinerary = async (tourId, lichTrinh, transaction) => {
 
 /* ---------- Bộ lọc danh sách ---------- */
 
-const MAX_KEYWORD = 100;
-
 const toVisibleFilter = (value) => {
   if (value === 'visible') return true;
   if (value === 'hidden') return false;
   return null;
 };
 
-// Thoát các ký tự có nghĩa riêng trong LIKE (\ % _ [) để từ khóa được tìm đúng nguyên văn
-const toLikePattern = (text) => `%${text.replace(/[\\%_[]/g, (char) => `\\${char}`)}%`;
-
-const toFilterId = (value) => {
-  const id = Number(value);
-  return Number.isSafeInteger(id) && id > 0 ? id : null;
-};
-
 // Giống quy ước phân trang: giá trị lọc sai thì bỏ qua bộ lọc đó, không báo lỗi.
 // keyword "12" hoặc "#12" tìm cả tour mã 12 lẫn tour có "12" trong tên.
 const parseTourFilters = (query) => {
-  const keyword = (typeof query.keyword === 'string' ? query.keyword.trim() : '').slice(0, MAX_KEYWORD);
+  const keyword = toKeyword(query.keyword);
   const code = /^#?(\d{1,9})$/.exec(keyword);
   return {
     keyword: keyword ? toLikePattern(keyword) : null,

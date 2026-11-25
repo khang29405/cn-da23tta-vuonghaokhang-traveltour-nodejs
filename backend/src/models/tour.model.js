@@ -24,12 +24,14 @@ const TOUR_JOINS = `
 
 /* ---------- Đọc ---------- */
 
-// Ghép điều kiện lọc danh sách tour của quản trị; chỉ thêm điều kiện của bộ lọc có giá trị.
+// Ghép điều kiện lọc tour, dùng chung cho danh sách của quản trị và danh sách công khai;
+// chỉ thêm điều kiện của bộ lọc có giá trị (bộ lọc không truyền thì bỏ qua).
 // Mọi giá trị đều đi qua tham số, chuỗi SQL chỉ ghép các đoạn cố định.
 // keyword là mẫu LIKE đã thoát ký tự đặc biệt; tên tour so khớp không phân biệt hoa thường và dấu
 // (Latin1_General_CI_AI; Vietnamese_CI_AI vẫn coi "Đ" khác "D") để gõ "da lat" vẫn ra "Đà Lạt".
-// tourCode có khi từ khóa là một con số (tìm theo mã tour).
-const applyTourFilters = (request, { keyword, tourCode, tourType, destination, visible }) => {
+// tourCode có khi từ khóa là một con số (chỉ quản trị tìm theo mã tour).
+const buildTourConditions = (request, filters) => {
+  const { keyword, tourCode, tourType, destination, departurePoint, transport, minPrice, maxPrice, visible } = filters;
   const conditions = [];
   if (keyword) {
     request.input('keyword', sql.NVarChar(210), keyword);
@@ -48,12 +50,32 @@ const applyTourFilters = (request, { keyword, tourCode, tourType, destination, v
     request.input('destination', sql.Int, destination);
     conditions.push('t.ma_diem_den = @destination');
   }
-  if (visible !== null) {
+  if (departurePoint) {
+    request.input('departurePoint', sql.Int, departurePoint);
+    conditions.push('t.ma_diem_khoi_hanh = @departurePoint');
+  }
+  if (transport) {
+    request.input('transport', sql.Int, transport);
+    conditions.push('t.ma_phuong_tien = @transport');
+  }
+  if (minPrice !== null && minPrice !== undefined) {
+    request.input('minPrice', sql.Decimal(12, 0), minPrice);
+    conditions.push('t.gia >= @minPrice');
+  }
+  if (maxPrice !== null && maxPrice !== undefined) {
+    request.input('maxPrice', sql.Decimal(12, 0), maxPrice);
+    conditions.push('t.gia <= @maxPrice');
+  }
+  if (visible !== null && visible !== undefined) {
     request.input('visible', sql.Bit, visible);
     conditions.push('t.trang_thai_hien_thi = @visible');
   }
-  return conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  return conditions;
 };
+
+const toWhere = (conditions) => (conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '');
+
+const applyTourFilters = (request, filters) => toWhere(buildTourConditions(request, filters));
 
 export const countTours = async (filters) => {
   const request = await createRequest();
@@ -149,15 +171,21 @@ const TOUR_CARD_COLUMNS = `
   CONVERT(CHAR(10), gn.ngay_khoi_hanh, 23) AS ngay_khoi_hanh_gan_nhat,
   gn.so_cho_con_lai AS so_cho_con_lai_gan_nhat`;
 
-const TOUR_CARD_FROM = `
+// departureCondition: điều kiện chọn lịch (bí danh l) để lấy lịch gần nhất
+const tourCardFrom = (departureCondition) => `
   ${TOUR_JOINS}
   OUTER APPLY (
     SELECT TOP 1 l.ma_lich_khoi_hanh, l.ngay_khoi_hanh, l.so_cho_con_lai
     FROM LICH_KHOI_HANH l
-    WHERE l.ma_tour = t.ma_tour AND ${BOOKABLE_DEPARTURE}
+    WHERE l.ma_tour = t.ma_tour AND ${departureCondition}
     ORDER BY l.ngay_khoi_hanh, l.ma_lich_khoi_hanh
-  ) gn
+  ) gn`;
+
+const TOUR_CARD_FROM = `${tourCardFrom(BOOKABLE_DEPARTURE)}
   WHERE t.trang_thai_hien_thi = 1`;
+
+// Lịch còn chỗ từ ngày khách chọn trở đi (bộ lọc departureFrom); ngày đã qua vẫn bị BOOKABLE_DEPARTURE loại
+const BOOKABLE_FROM_DATE = `${BOOKABLE_DEPARTURE} AND l.ngay_khoi_hanh >= @departureFrom`;
 
 // Thứ tự mặc định cho khách: tour có lịch còn chỗ lên trước (ngày gần nhất trước), sau đó tour mới thêm
 const NEAREST_FIRST = `CASE WHEN gn.ngay_khoi_hanh IS NULL THEN 1 ELSE 0 END, gn.ngay_khoi_hanh,
@@ -199,17 +227,44 @@ export const findTourCardsByType = async (today, limitPerType) => {
   return result.recordset;
 };
 
-export const countVisibleTours = async () => {
-  const request = await createRequest();
-  const result = await request.query('SELECT COUNT(*) AS total FROM TOUR t WHERE t.trang_thai_hien_thi = 1');
+// Danh sách tour cho khách (GET /api/tours): chỉ tour đang hiện, cộng các bộ lọc khách chọn.
+// departureFrom: tour phải có ít nhất một lịch còn chỗ từ ngày đó trở đi (EXISTS).
+const applyPublicTourFilters = (request, filters) => {
+  const conditions = ['t.trang_thai_hien_thi = 1', ...buildTourConditions(request, filters)];
+  if (filters.departureFrom) {
+    request.input('departureFrom', sql.Date, filters.departureFrom);
+    conditions.push(`EXISTS (SELECT 1 FROM LICH_KHOI_HANH l WHERE l.ma_tour = t.ma_tour AND ${BOOKABLE_FROM_DATE})`);
+  }
+  return toWhere(conditions);
+};
+
+// Giá trị sort hợp lệ và câu ORDER BY tương ứng (thêm ma_tour để thứ tự cố định khi trùng giá, giữa các trang không lặp tour)
+const PUBLIC_SORT_ORDERS = {
+  price_asc: 't.gia, t.ma_tour',
+  price_desc: 't.gia DESC, t.ma_tour DESC',
+  newest: 't.ngay_tao DESC, t.ma_tour DESC',
+};
+
+export const PUBLIC_TOUR_SORTS = Object.keys(PUBLIC_SORT_ORDERS);
+
+export const countPublicTours = async (today, filters) => {
+  const request = await createCardRequest(today);
+  const where = applyPublicTourFilters(request, filters);
+  const result = await request.query(`SELECT COUNT(*) AS total FROM TOUR t ${where}`);
   return result.recordset[0].total;
 };
 
-export const findVisibleTourCards = async (today, { offset, limit }) => {
+// Có lọc theo ngày thì lịch gần nhất trên thẻ tour cũng tính từ ngày lọc.
+// Không chọn sort thì dùng thứ tự mặc định (tour có lịch gần nhất trước).
+export const findPublicTourCards = async (today, filters, { offset, limit }) => {
   const request = await createCardRequest(today);
+  const where = applyPublicTourFilters(request, filters);
+  const departureCondition = filters.departureFrom ? BOOKABLE_FROM_DATE : BOOKABLE_DEPARTURE;
+  const orderBy = Object.hasOwn(PUBLIC_SORT_ORDERS, filters.sort) ? PUBLIC_SORT_ORDERS[filters.sort] : NEAREST_FIRST;
   const result = await request.input('offset', sql.Int, offset).input('limit', sql.Int, limit).query(`
-    SELECT ${TOUR_CARD_COLUMNS} ${TOUR_CARD_FROM}
-    ORDER BY ${NEAREST_FIRST}
+    SELECT ${TOUR_CARD_COLUMNS} ${tourCardFrom(departureCondition)}
+    ${where}
+    ORDER BY ${orderBy}
     OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`);
   return result.recordset;
 };
