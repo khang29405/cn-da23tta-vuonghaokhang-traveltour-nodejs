@@ -39,7 +39,7 @@
   --radius-lg: 10px;
   --shadow-panel: 0 6px 20px rgba(19, 38, 59, 0.12);
 
-  --container-width: 1180px;
+  --container-width: 1280px;
   /* Phần khung tìm kiếm đè lên đáy banner (dùng chung cho HeroSlider và HomePage) */
   --hero-overlap: 1.5rem;
   --transition: 0.15s ease;
