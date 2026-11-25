@@ -7,6 +7,10 @@
   margin-top: var(--space-3);
 }
 
+.pagination--centered {
+  justify-content: center;
+}
+
 .pagination__summary {
   font-size: var(--text-sm);
   color: var(--color-text-muted);

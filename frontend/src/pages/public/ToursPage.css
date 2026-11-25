@@ -1,19 +1,248 @@
 .tours-page {
-  padding-block: var(--space-5) var(--space-4);
+  padding-block: var(--space-3) var(--space-4);
 }
 
 .tours-page__header {
-  margin-block: var(--space-3) var(--space-5);
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-2) var(--space-4);
 }
 
 .tours-page__title {
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
 }
 
-.tours-page__subtitle {
-  margin-top: 2px;
-  font-size: var(--text-sm);
+/* Một ô tìm kiếm liền khối: icon, ô nhập, nút Tìm tour nằm bên trong cùng một khung */
+.tours-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 3px 0 var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.tours-search:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.tours-search__icon {
+  flex-shrink: 0;
   color: var(--color-text-muted);
+}
+
+.tours-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  outline: none;
+}
+
+.tours-search__submit {
+  flex-shrink: 0;
+  min-height: 32px;
+  height: 32px;
+  padding-inline: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.tours-page__layout {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.tours-page__filters {
+  display: none;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Điện thoại, máy tính bảng: bộ lọc mở thành khung phủ toàn màn hình */
+.tours-page__filters--open {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.tours-page__filters--open .tour-search-filters {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.tours-page__filters-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tours-page__filters--open .tours-page__filters-header {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+}
+
+.tours-page__filters-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-right: auto;
+  font-size: var(--text-base);
+}
+
+.tours-page__filters-close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  font-size: 1.125rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.tours-page__filters-close:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.tours-page__filters-footer {
+  display: none;
+}
+
+.tours-page__filters--open .tours-page__filters-footer {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.tours-page__filters-footer .btn {
+  width: 100%;
+}
+
+.tours-page__clear {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.tours-page__clear:hover {
+  text-decoration: underline;
+}
+
+.tours-page__results {
+  min-width: 0;
+}
+
+/* Điện thoại: 2 cột (Bộ lọc, Mức giá / Phương tiện, Sắp xếp); từ 560px trở lên: một hàng, sắp xếp sát phải */
+.tours-toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.tours-toolbar__control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.tours-toolbar__control:hover,
+.tours-toolbar__control:focus-visible {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.tours-toolbar__control--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.tours-toolbar__sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.tours-toolbar__sort-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  list-style: none;
+}
+
+.active-filters__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 3px var(--space-2) 3px var(--space-3);
+  border: 1px solid #b9d3f3;
+  border-radius: var(--radius);
+  background: var(--color-primary-soft);
+  font-size: var(--text-sm);
+  color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.active-filters__chip svg {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.active-filters__chip:hover {
+  border-color: var(--color-primary);
+}
+
+.active-filters__chip:hover svg {
+  opacity: 1;
 }
 
 .tours-page__grid {
@@ -28,12 +257,34 @@
   opacity: 0.6;
 }
 
+/* Thẻ hiện dần lần lượt khi kết quả đổi; mỗi thẻ trễ 40ms, tối đa 8 bậc để cả lưới xong trong khoảng 0,6 giây */
+.tours-page__item {
+  animation: tour-item-in 0.3s ease both;
+  animation-delay: calc(min(var(--item-index), 8) * 40ms);
+}
+
+@keyframes tour-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tours-page__item {
+    animation: none;
+  }
+}
+
 .tours-page__grid + .pagination {
   margin-top: var(--space-6);
 }
 
 .tours-page__empty {
-  padding: var(--space-8) var(--space-4);
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-4);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
@@ -42,12 +293,29 @@
   color: var(--color-text-muted);
 }
 
+.tours-page__empty-icon {
+  font-size: 2rem;
+  color: #b4bfcc;
+}
+
+.tours-page__empty-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.tours-page__empty .btn {
+  margin-top: var(--space-2);
+}
+
 .tours-page__error {
   flex-wrap: wrap;
   align-items: center;
 }
 
-.tours-page__error .btn {
+.tours-page__error-actions {
+  display: flex;
+  gap: var(--space-2);
   margin-left: auto;
 }
 
@@ -57,14 +325,75 @@
   }
 }
 
-@media (min-width: 900px) {
-  .tours-page__grid {
-    grid-template-columns: repeat(3, 1fr);
+@media (min-width: 560px) {
+  .tours-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .tours-toolbar__control {
+    width: auto;
+  }
+
+  .tours-toolbar__sort {
+    margin-left: auto;
+  }
+
+  .tours-toolbar__sort-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
   }
 }
 
-@media (min-width: 1140px) {
+/* Tiêu đề bên trái, ô tìm kiếm giãn hết phần còn lại */
+@media (min-width: 768px) {
+  .tours-page__header {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-8);
+    align-items: center;
+  }
+}
+
+/* Phần đầu trang dùng cùng cột với phần dưới để ô tìm kiếm thẳng mép với cột kết quả */
+@media (min-width: 1024px) {
+  .tours-page__header,
+  .tours-page__layout {
+    grid-template-columns: 232px minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .tours-page__filters,
+  .tours-page__filters--open {
+    position: static;
+    display: block;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .tours-page__filters--open .tour-search-filters {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .tours-page__filters--open .tours-page__filters-header {
+    margin-bottom: var(--space-3);
+    padding: 0 0 var(--space-3);
+  }
+
+  .tours-page__filters-close,
+  .tours-page__filters--open .tours-page__filters-footer,
+  .tours-toolbar__filter-toggle {
+    display: none;
+  }
+
   .tours-page__grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }

@@ -11,20 +11,23 @@ const buildPageItems = (page, totalPages) => {
   return pages.flatMap((item, index) => (index > 0 && item - pages[index - 1] > 1 ? [`gap-${item}`, item] : [item]));
 };
 
-const Pagination = ({ pagination, itemLabel, onPageChange, disabled = false }) => {
+// showSummary = false: ẩn dòng "Đang xem ... trong tổng số ...", nút trang canh giữa (trang /tour của khách)
+const Pagination = ({ pagination, itemLabel, onPageChange, disabled = false, showSummary = true }) => {
   const { page, limit, total, totalPages } = pagination;
-  if (total === 0) return null;
+  if (total === 0 || (!showSummary && totalPages <= 1)) return null;
 
   const from = (page - 1) * limit + 1;
   const to = Math.min(page * limit, total);
 
   return (
-    <nav className="pagination" aria-label="Phân trang">
-      <p className="pagination__summary">
-        {totalPages > 1
-          ? `Đang xem ${from}–${to} trong tổng số ${total} ${itemLabel}`
-          : `Tổng số ${total} ${itemLabel}`}
-      </p>
+    <nav className={`pagination${showSummary ? '' : ' pagination--centered'}`} aria-label="Phân trang">
+      {showSummary && (
+        <p className="pagination__summary">
+          {totalPages > 1
+            ? `Đang xem ${from}–${to} trong tổng số ${total} ${itemLabel}`
+            : `Tổng số ${total} ${itemLabel}`}
+        </p>
+      )}
 
       {totalPages > 1 && (
         <div className="pagination__pages">

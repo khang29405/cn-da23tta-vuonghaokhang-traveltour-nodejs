@@ -1,0 +1,158 @@
+.tour-search-filters {
+  display: grid;
+}
+
+/* Khối ngày khởi hành: nền xanh rất nhạt, vạch màu chính ở mép trên (giống tab đang chọn) để nổi bật mà không đậm màu */
+.filter-date {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: #f5f9fe;
+}
+
+.filter-date__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.filter-date__icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  font-size: 0.8125rem;
+  color: var(--color-text);
+}
+
+.filter-date .input {
+  min-height: 40px;
+}
+
+/* Bỏ viền xanh và quầng sáng mặc định khi bấm vào ô ngày; viền xám đậm vẫn cho người dùng bàn phím biết ô đang được chọn */
+.filter-date .input:focus {
+  border-color: var(--color-text-muted);
+  box-shadow: none;
+}
+
+.filter-date__input--active {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* Nhóm đầu tiên sau khối ngày không cần đường kẻ trên */
+.filter-date + .filter-group {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.filter-group {
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.filter-group:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.filter-group:last-child {
+  padding-bottom: 0;
+}
+
+.filter-group__title {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.filter-group__input {
+  min-height: 36px;
+  padding-block: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.filter-group__input-skeleton {
+  display: block;
+  height: 36px;
+}
+
+.type-options {
+  display: grid;
+  gap: 2px;
+}
+
+.type-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 34px;
+  padding: 3px var(--space-2) 3px 3px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: none;
+  font-size: var(--text-sm);
+  text-align: left;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.type-option:hover {
+  background: var(--color-bg);
+}
+
+/* Không in đậm khi chọn để tên dài không bị xuống dòng */
+.type-option--selected,
+.type-option--selected:hover {
+  border-color: var(--type-color);
+  background: var(--type-soft);
+  color: var(--type-color);
+}
+
+/* Điểm khởi hành dùng cùng kiểu dòng nhưng không có icon, màu chung là màu chính */
+.type-option--point {
+  --type-color: var(--color-primary);
+  --type-soft: var(--color-primary-soft);
+  min-height: 32px;
+  padding-left: var(--space-2);
+}
+
+.type-option__icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background: var(--type-soft);
+  font-size: 0.75rem;
+  color: var(--type-color);
+}
+
+.type-option--selected .type-option__icon {
+  background: var(--type-color);
+  color: #fff;
+}
+
+.type-option__name {
+  flex: 1;
+  min-width: 0;
+}
+
+.type-options .filter-skeleton {
+  height: 30px;
+}
+
+.type-options .filter-skeleton:nth-child(odd) {
+  width: 80%;
+}

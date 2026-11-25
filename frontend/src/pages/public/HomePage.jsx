@@ -36,7 +36,7 @@ const highlights = [
 // Chiều cao navbar dính trên cùng; thanh tìm kiếm thu gọn hiện ngay dưới nó
 const NAVBAR_HEIGHT = 60;
 
-// Tham số query trùng với API lọc tour của Bước 18; trang /tour dùng chúng từ Bước 19
+// Tham số query trùng với bộ lọc của trang /tour
 const buildSearchQuery = ({ keyword, departurePoint, departureFrom }) => {
   const params = new URLSearchParams();
   if (keyword.trim()) params.set('keyword', keyword.trim());
@@ -193,15 +193,14 @@ const HomePage = () => {
         )}
 
         {activeGroup && (
-          // Bước 19: "Xem tất cả" mở /tour đã lọc theo loại tour đang chọn
-          <HomeSection title="Khám phá theo loại tour" moreLink="/tour">
+          <HomeSection title="Khám phá theo loại tour" moreLink={`/tour?tourType=${activeGroup.ma_loai_tour}`}>
             <TourTypeTabs groups={typeGroups} activeId={activeGroup.ma_loai_tour} onSelect={setActiveTypeId} />
             <TourRail tours={activeGroup.danh_sach_tour} label={`Tour ${activeGroup.ten_loai_tour}`} />
           </HomeSection>
         )}
 
         {home.tour_moi.length > 0 && (
-          <HomeSection title="Tour mới" subtitle="Hành trình vừa được thêm vào hệ thống" moreLink="/tour">
+          <HomeSection title="Tour mới" subtitle="Hành trình vừa được thêm vào hệ thống" moreLink="/tour?sort=newest">
             <TourRail tours={home.tour_moi} label="Tour mới" />
           </HomeSection>
         )}

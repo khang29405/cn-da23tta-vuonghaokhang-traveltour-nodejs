@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faLocationDot,
@@ -12,6 +14,7 @@ import {
 import { faFacebookF, faTiktok } from '@fortawesome/free-brands-svg-icons';
 import Logo from '../Logo/Logo.jsx';
 import siteInfo from '../../config/siteInfo.js';
+import { getTourTypes, getDeparturePoints } from '../../api/categoryApi.js';
 import './Footer.css';
 
 const currentYear = new Date().getFullYear();
@@ -36,6 +39,53 @@ const hotlineHref = `tel:${siteInfo.hotline.replace(/\s/g, '')}`;
 const scrollToTop = () => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+};
+
+const FooterLinkColumn = ({ title, links }) =>
+  links.length > 0 && (
+    <div>
+      <h3 className="footer__heading">{title}</h3>
+      <ul className="footer__list">
+        {links.map(({ to, label }) => (
+          <li key={to}>
+            {/* Đang ở /tour thì chỉ đổi bộ lọc trên URL, phải tự cuộn lên để thấy kết quả */}
+            <Link to={to} onClick={() => window.scrollTo({ top: 0 })}>
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+// Tải danh mục lỗi thì không hiện hai cột này, phần còn lại của footer vẫn hiện
+const FooterTourLinks = () => {
+  const [categories, setCategories] = useState({ tourTypes: [], departurePoints: [] });
+
+  useEffect(() => {
+    Promise.all([getTourTypes(), getDeparturePoints()])
+      .then(([tourTypes, departurePoints]) => setCategories({ tourTypes, departurePoints }))
+      .catch(() => {});
+  }, []);
+
+  return (
+    <>
+      <FooterLinkColumn
+        title="Loại tour"
+        links={categories.tourTypes.map((type) => ({
+          to: `/tour?tourType=${type.ma_loai_tour}`,
+          label: type.ten_loai_tour,
+        }))}
+      />
+      <FooterLinkColumn
+        title="Khởi hành từ"
+        links={categories.departurePoints.map((point) => ({
+          to: `/tour?departurePoint=${point.ma_diem_khoi_hanh}`,
+          label: point.ten_diem_khoi_hanh,
+        }))}
+      />
+    </>
+  );
 };
 
 const Footer = () => (
@@ -87,6 +137,8 @@ const Footer = () => (
         </ol>
         <p className="footer__note">Bạn tự hủy được khi đơn chưa được xác nhận.</p>
       </div>
+
+      <FooterTourLinks />
 
       <div>
         <h3 className="footer__heading">Liên hệ</h3>
