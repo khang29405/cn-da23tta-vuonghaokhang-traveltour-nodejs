@@ -6,6 +6,7 @@ import tourRoutes from './tour.routes.js';
 import adminCategoryRoutes from './adminCategory.routes.js';
 import adminTourRoutes from './adminTour.routes.js';
 import adminDepartureRoutes from './adminDeparture.routes.js';
+import bookingRoutes from './booking.routes.js';
 
 // Gom tất cả route, gắn vào /api trong app.js
 const router = Router();
@@ -14,6 +15,7 @@ router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/tours', tourRoutes);
+router.use('/bookings', bookingRoutes);
 router.use('/admin', adminCategoryRoutes);
 router.use('/admin', adminDepartureRoutes);
 router.use('/admin/tours', adminTourRoutes);

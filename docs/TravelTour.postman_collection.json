@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "8d7af7c9-2771-4799-978a-ed6af2f8560d",
     "name": "Backend TourTravel",
-    "description": "API của website quản lý và đặt tour du lịch TravelTour (Node.js, Express, SQL Server).\n\n**Cách dùng**\n1. Chạy backend (`npm run dev` trong thư mục `backend`), kiểm tra bằng request `check health`.\n2. Gửi request `auth / login`: script của request tự lưu token vào biến `token`.\n3. Các request khác dùng chung Bearer Token `{{token}}` khai báo ở cấp collection. Muốn thử với vai trò khác thì đổi email trong body của `login` rồi gửi lại.\n\n**Biến của collection**\n- `baseURL`: địa chỉ API, mặc định `http://localhost:5000/api`.\n- `token`: JWT lấy từ request đăng nhập.\n- `tourTypeId`, `destinationId`, `departurePointId`, `tourId`, `departureId`, `imageId`: mã của bản ghi vừa tạo, do script của các request \"create ...\" (và request tải ảnh) tự lưu để request sửa/xóa dùng lại.\n- `staffToken`, `customerToken`: token của tài khoản nhân viên, khách hàng; chỉ dùng khi tự thử ca 403 (dán token lấy từ `login` với email tương ứng). Example 403 ghi header `Authorization: Bearer {{staffToken}}`.\n\n**Định dạng response chung**\n```json\n{ \"success\": true, \"message\": \"...\", \"data\": { } }\n{ \"success\": false, \"message\": \"Lý do lỗi bằng tiếng Việt\" }\n```\nMã HTTP: 200/201 thành công, 400 dữ liệu sai, 401 chưa đăng nhập, 403 không đủ quyền, 404 không tìm thấy, 409 xung đột.\n\n**Phân trang** (danh sách tour): query `page` (mặc định 1), `limit` (mặc định 10, tối đa 50). Giá trị sai được đưa về giá trị hợp lệ gần nhất, không báo lỗi. `data` có dạng `{ items, pagination: { page, limit, total, totalPages } }`.\n\n**Example:** mỗi request có các example ca thành công và ca lỗi, chụp từ response thật trên CSDL có dữ liệu `seed.sql`. Token trong example đã được rút gọn. Ngày khởi hành trong body là ngày cụ thể lúc tạo example: khi gửi lại hãy đổi sang ngày sau hôm nay.\n\n**Tài khoản mẫu** (sau khi chạy `seed.sql`, mật khẩu chung `Matkhau@123`): `quantri@traveltour.vn`, `nhanvien@traveltour.vn`, `khachhang@gmail.com`.",
+    "description": "API của website quản lý và đặt tour du lịch TravelTour (Node.js, Express, SQL Server).\n\n**Cách dùng**\n1. Chạy backend (`npm run dev` trong thư mục `backend`), kiểm tra bằng request `check health`.\n2. Gửi request `auth / login`: script của request tự lưu token vào biến `token`.\n3. Các request khác dùng chung Bearer Token `{{token}}` khai báo ở cấp collection. Muốn thử với vai trò khác thì đổi email trong body của `login` rồi gửi lại.\n\n**Biến của collection**\n- `baseURL`: địa chỉ API, mặc định `http://localhost:5000/api`.\n- `token`: JWT lấy từ request đăng nhập.\n- `tourTypeId`, `destinationId`, `departurePointId`, `tourId`, `departureId`, `imageId`, `bookingId`: mã của bản ghi vừa tạo, do script của các request \"create ...\" (và request tải ảnh) tự lưu để request sửa/xóa dùng lại.\n- `staffToken`, `customerToken`: token của tài khoản nhân viên, khách hàng; chỉ dùng khi tự thử ca 403 (dán token lấy từ `login` với email tương ứng). Example 403 ghi header `Authorization: Bearer {{staffToken}}`.\n\n**Định dạng response chung**\n```json\n{ \"success\": true, \"message\": \"...\", \"data\": { } }\n{ \"success\": false, \"message\": \"Lý do lỗi bằng tiếng Việt\" }\n```\nMã HTTP: 200/201 thành công, 400 dữ liệu sai, 401 chưa đăng nhập, 403 không đủ quyền, 404 không tìm thấy, 409 xung đột.\n\n**Phân trang** (danh sách tour, lịch sử đặt tour): query `page` (mặc định 1), `limit` (mặc định 10, tối đa 50). Giá trị sai được đưa về giá trị hợp lệ gần nhất, không báo lỗi. `data` có dạng `{ items, pagination: { page, limit, total, totalPages } }`.\n\n**Example:** mỗi request có các example ca thành công và ca lỗi, chụp từ response thật trên CSDL có dữ liệu `seed.sql`. Token trong example đã được rút gọn. Ngày khởi hành trong body là ngày cụ thể lúc tạo example: khi gửi lại hãy đổi sang ngày sau hôm nay.\n\n**Tài khoản mẫu** (sau khi chạy `seed.sql`, mật khẩu chung `Matkhau@123`): `quantri@traveltour.vn`, `nhanvien@traveltour.vn`, `khachhang@gmail.com`.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "47088449",
     "_collection_link": "https://go.postman.co/collection/47088449-8d7af7c9-2771-4799-978a-ed6af2f8560d?source=collection_link"
@@ -3586,6 +3586,754 @@
       ]
     },
     {
+      "name": "bookings",
+      "description": "Khách hàng đặt tour, xem lịch sử đặt tour và chi tiết đơn của mình. Nhân viên, quản trị viên xử lý đơn ở các API quản lý đơn (bước sau).\n\n**Quyền:** khách hàng (token của `khachhang@gmail.com`). Thiếu token → 401 \"Bạn chưa đăng nhập\"; token của nhân viên, quản trị viên → 403 \"Bạn không có quyền thực hiện thao tác này\".\n\n**Trạng thái đơn:** `cho_xac_nhan` (mới đặt), `da_xac_nhan`, `da_huy`, `hoan_tat`.\n\n**Thanh toán** (chỉ ghi nhận, không có cổng thanh toán): `trang_thai_thanh_toan` nằm ở đơn: `chua_thanh_toan`, `da_dat_coc` (đã thu một phần), `da_thanh_toan` (đã thu đủ `tong_tien`). Mỗi lần công ty nhận tiền là một **phiếu thu** (`thanh_toan` trong chi tiết đơn), do nhân viên ghi nhận ở API quản lý đơn.",
+      "item": [
+        {
+          "name": "create a booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('bookingId', pm.response.json().data.ma_don);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ma_lich_khoi_hanh\": 16,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/bookings",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "description": "Đặt tour cho một lịch khởi hành. Đơn mới ở trạng thái `cho_xac_nhan` và **giữ chỗ ngay**: số chỗ còn lại của lịch giảm theo số khách, còn 0 chỗ thì lịch chuyển sang `het_cho`. Toàn bộ chạy trong một transaction có khóa dòng lịch nên hai người đặt cùng lúc không thể vượt số chỗ. Script lưu mã đơn mới vào biến `bookingId`.\n\n**Body (JSON):**\n- `ma_lich_khoi_hanh` (bắt buộc): lịch còn chỗ, lấy từ `lich_khoi_hanh` của request `tours / get a tour`\n- `so_luong_khach` (bắt buộc, số nguyên ≥ 1, không vượt số chỗ còn lại)\n- `ho_ten_lien_he` (bắt buộc, tối đa 100 ký tự)\n- `so_dien_thoai_lien_he` (bắt buộc, 10 chữ số, bắt đầu bằng 0)\n- `ghi_chu` (không bắt buộc, tối đa 500 ký tự)\n- `phuong_thuc` (bắt buộc): `Tiền mặt` hoặc `Chuyển khoản`\n\n`don_gia` lấy giá tour lúc đặt, `tong_tien` = `don_gia` × `so_luong_khach`, đều tính ở server (client không gửi). Giá lưu trong đơn nên tour đổi giá sau này không ảnh hưởng đơn đã đặt. Phương thức khách chọn lưu ở `phuong_thuc_thanh_toan` của đơn; đơn mới có `trang_thai_thanh_toan` = `chua_thanh_toan` và **chưa có phiếu thu** (`thanh_toan` rỗng) vì khách chưa trả tiền.\n\n**Thành công:** 201 \"Đặt tour thành công, đơn đang chờ xác nhận\", `data` là chi tiết đơn (giống `get a booking`).\n\n**Lỗi chính:**\n- 400 \"Số điện thoại liên hệ phải gồm 10 chữ số và bắt đầu bằng 0\"\n- 400 \"Số lượng khách phải từ 1 trở lên\"\n- 400 \"Phương thức thanh toán chỉ nhận: Tiền mặt, Chuyển khoản\"\n- 404 \"Không tìm thấy lịch khởi hành\" (kể cả lịch của tour đang ẩn)\n- 409 \"Lịch khởi hành ngày dd/mm/yyyy chỉ còn N chỗ\"\n- 409 \"Lịch khởi hành ngày dd/mm/yyyy đã hết chỗ, vui lòng chọn ngày khác\"\n- 409 \"Lịch khởi hành ngày dd/mm/yyyy đã hết hạn đặt chỗ, vui lòng chọn ngày khác\" (lịch đã khởi hành hoặc khởi hành hôm nay)\n- 409 \"Lịch khởi hành ngày dd/mm/yyyy đã bị hủy, vui lòng chọn ngày khác\"\n- 401, 403 như mô tả của thư mục"
+          },
+          "response": [
+            {
+              "name": "201 Đặt tour thành công",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 16,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Đặt tour thành công, đơn đang chờ xác nhận\",\n    \"data\": {\n        \"ma_don\": 1,\n        \"ngay_dat\": \"2026-11-26T21:03:30\",\n        \"so_luong_khach\": 2,\n        \"don_gia\": 1190000,\n        \"tong_tien\": 2380000,\n        \"trang_thai_don\": \"cho_xac_nhan\",\n        \"ma_lich_khoi_hanh\": 16,\n        \"ngay_khoi_hanh\": \"2026-12-06\",\n        \"ma_tour\": 7,\n        \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n        \"so_ngay\": 1,\n        \"so_dem\": 0,\n        \"anh_dai_dien\": null,\n        \"trang_thai_thanh_toan\": \"chua_thanh_toan\",\n        \"phuong_thuc_thanh_toan\": \"Chuyển khoản\",\n        \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n        \"so_dien_thoai_lien_he\": \"0901000003\",\n        \"ghi_chu\": \"Cần 1 phòng đôi\",\n        \"ngay_huy\": null,\n        \"ten_diem_khoi_hanh\": \"Hà Nội\",\n        \"ten_diem_den\": \"Ninh Bình\",\n        \"ten_phuong_tien\": \"Ô tô\",\n        \"thanh_toan\": []\n    }\n}"
+            },
+            {
+              "name": "400 Số điện thoại sai",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 16,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"090100\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Số điện thoại liên hệ phải gồm 10 chữ số và bắt đầu bằng 0\"\n}"
+            },
+            {
+              "name": "400 Số lượng khách nhỏ hơn 1",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 16,\n  \"so_luong_khach\": 0,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Số lượng khách phải từ 1 trở lên\"\n}"
+            },
+            {
+              "name": "400 Phương thức thanh toán không hợp lệ",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 16,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Thẻ tín dụng\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Phương thức thanh toán chỉ nhận: Tiền mặt, Chuyển khoản\"\n}"
+            },
+            {
+              "name": "404 Không tìm thấy lịch khởi hành",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 999,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Không tìm thấy lịch khởi hành\"\n}"
+            },
+            {
+              "name": "409 Vượt số chỗ còn lại",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 16,\n  \"so_luong_khach\": 39,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Lịch khởi hành ngày 06/12/2026 chỉ còn 38 chỗ\"\n}"
+            },
+            {
+              "name": "409 Lịch đã hết chỗ",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 14,\n  \"so_luong_khach\": 1,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Lịch khởi hành ngày 14/12/2026 đã hết chỗ, vui lòng chọn ngày khác\"\n}"
+            },
+            {
+              "name": "409 Lịch đã khởi hành",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 1,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Lịch khởi hành ngày 06/11/2026 đã hết hạn đặt chỗ, vui lòng chọn ngày khác\"\n}"
+            },
+            {
+              "name": "409 Lịch đã bị hủy",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 11,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Lịch khởi hành ngày 26/12/2026 đã bị hủy, vui lòng chọn ngày khác\"\n}"
+            },
+            {
+              "name": "401 Chưa đăng nhập",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 16,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Bạn chưa đăng nhập\"\n}"
+            },
+            {
+              "name": "403 Tài khoản nhân viên đặt tour",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{staffToken}}",
+                    "description": "Token của tài khoản nhân viên",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseURL}}/bookings",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ma_lich_khoi_hanh\": 16,\n  \"so_luong_khach\": 2,\n  \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n  \"so_dien_thoai_lien_he\": \"0901000003\",\n  \"ghi_chu\": \"Cần 1 phòng đôi\",\n  \"phuong_thuc\": \"Chuyển khoản\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Bạn không có quyền thực hiện thao tác này\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "get my bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/bookings/me?page=1&limit=10",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bookings",
+                "me"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lịch sử đặt tour của tài khoản đang đăng nhập, đơn mới đặt đứng trước, có phân trang (`page`, `limit` như quy ước chung).\n\nMỗi đơn có thông tin tour (`ten_tour`, `so_ngay`, `so_dem`, `anh_dai_dien`), `ngay_khoi_hanh`, `so_luong_khach`, `tong_tien`, `trang_thai_don` và `trang_thai_thanh_toan`. `ngay_dat` là giờ máy chủ dạng `YYYY-MM-DDTHH:mm:ss`.\n\n**Thành công:** 200 \"Lịch sử đặt tour\", `data` = `{ items, pagination }`. Chưa có đơn thì `items` rỗng.\n\n**Lỗi chính:** 401, 403 như mô tả của thư mục."
+          },
+          "response": [
+            {
+              "name": "200 Lịch sử đặt tour",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "me"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Lịch sử đặt tour\",\n    \"data\": {\n        \"items\": [\n            {\n                \"ma_don\": 2,\n                \"ngay_dat\": \"2026-11-26T21:03:30\",\n                \"so_luong_khach\": 30,\n                \"don_gia\": 3990000,\n                \"tong_tien\": 119700000,\n                \"trang_thai_don\": \"cho_xac_nhan\",\n                \"ma_lich_khoi_hanh\": 14,\n                \"ngay_khoi_hanh\": \"2026-12-14\",\n                \"ma_tour\": 6,\n                \"ten_tour\": \"Huế 4 ngày 3 đêm: cố đô và nhã nhạc cung đình\",\n                \"so_ngay\": 4,\n                \"so_dem\": 3,\n                \"anh_dai_dien\": null,\n                \"trang_thai_thanh_toan\": \"chua_thanh_toan\"\n            },\n            {\n                \"ma_don\": 1,\n                \"ngay_dat\": \"2026-11-26T21:03:30\",\n                \"so_luong_khach\": 2,\n                \"don_gia\": 1190000,\n                \"tong_tien\": 2380000,\n                \"trang_thai_don\": \"cho_xac_nhan\",\n                \"ma_lich_khoi_hanh\": 16,\n                \"ngay_khoi_hanh\": \"2026-12-06\",\n                \"ma_tour\": 7,\n                \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n                \"so_ngay\": 1,\n                \"so_dem\": 0,\n                \"anh_dai_dien\": null,\n                \"trang_thai_thanh_toan\": \"chua_thanh_toan\"\n            }\n        ],\n        \"pagination\": {\n            \"page\": 1,\n            \"limit\": 10,\n            \"total\": 2,\n            \"totalPages\": 1\n        }\n    }\n}"
+            },
+            {
+              "name": "200 Chưa có đơn nào",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2Token}}",
+                    "description": "Token của một khách hàng khác",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "me"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Lịch sử đặt tour\",\n    \"data\": {\n        \"items\": [],\n        \"pagination\": {\n            \"page\": 1,\n            \"limit\": 10,\n            \"total\": 0,\n            \"totalPages\": 1\n        }\n    }\n}"
+            },
+            {
+              "name": "403 Tài khoản nhân viên",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{staffToken}}",
+                    "description": "Token của tài khoản nhân viên",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "me"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Bạn không có quyền thực hiện thao tác này\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "get a booking",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/bookings/{{bookingId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bookings",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "Chi tiết một đơn của chính mình: thông tin trong lịch sử, thêm `phuong_thuc_thanh_toan`, người liên hệ, ghi chú, `ngay_huy`, điểm khởi hành, điểm đến, phương tiện và `thanh_toan` (các phiếu thu đã ghi nhận, cũ trước; đơn chưa trả tiền thì rỗng).\n\n**Thành công:** 200 \"Chi tiết đơn đặt tour\".\n\n**Lỗi chính:**\n- 404 \"Không tìm thấy đơn đặt tour\": đơn không tồn tại **hoặc là đơn của khách khác** (không báo 403 để không lộ mã đơn nào đang có)\n- 400 \"Mã không hợp lệ\"\n- 401, 403 như mô tả của thư mục"
+          },
+          "response": [
+            {
+              "name": "200 Chi tiết đơn",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings/1",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Chi tiết đơn đặt tour\",\n    \"data\": {\n        \"ma_don\": 1,\n        \"ngay_dat\": \"2026-11-26T21:03:30\",\n        \"so_luong_khach\": 2,\n        \"don_gia\": 1190000,\n        \"tong_tien\": 2380000,\n        \"trang_thai_don\": \"cho_xac_nhan\",\n        \"ma_lich_khoi_hanh\": 16,\n        \"ngay_khoi_hanh\": \"2026-12-06\",\n        \"ma_tour\": 7,\n        \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n        \"so_ngay\": 1,\n        \"so_dem\": 0,\n        \"anh_dai_dien\": null,\n        \"trang_thai_thanh_toan\": \"chua_thanh_toan\",\n        \"phuong_thuc_thanh_toan\": \"Chuyển khoản\",\n        \"ho_ten_lien_he\": \"Phạm Gia Bảo\",\n        \"so_dien_thoai_lien_he\": \"0901000003\",\n        \"ghi_chu\": \"Cần 1 phòng đôi\",\n        \"ngay_huy\": null,\n        \"ten_diem_khoi_hanh\": \"Hà Nội\",\n        \"ten_diem_den\": \"Ninh Bình\",\n        \"ten_phuong_tien\": \"Ô tô\",\n        \"thanh_toan\": []\n    }\n}"
+            },
+            {
+              "name": "404 Đơn của khách hàng khác",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{customer2Token}}",
+                    "description": "Token của một khách hàng khác",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseURL}}/bookings/1",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "1"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Không tìm thấy đơn đặt tour\"\n}"
+            },
+            {
+              "name": "404 Không tìm thấy đơn",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings/999",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Không tìm thấy đơn đặt tour\"\n}"
+            },
+            {
+              "name": "400 Mã đơn không hợp lệ",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings/abc",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "abc"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": false,\n    \"message\": \"Mã không hợp lệ\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "admin/tours",
       "item": [
         {
@@ -6808,6 +7556,10 @@
     },
     {
       "key": "customerToken",
+      "value": ""
+    },
+    {
+      "key": "bookingId",
       "value": ""
     }
   ]

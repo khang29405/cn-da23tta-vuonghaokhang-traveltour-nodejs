@@ -66,6 +66,14 @@ export const requireDate = (value, label) => {
   return value.trim();
 };
 
+// Số điện thoại Việt Nam: 10 chữ số, bắt đầu bằng 0
+export const requirePhone = (value, label) => {
+  const phone = toText(value);
+  if (!phone) throw new AppError(`Vui lòng nhập ${label}`, 400);
+  if (!/^0\d{9}$/.test(phone)) throw new AppError(`${capitalize(label)} phải gồm 10 chữ số và bắt đầu bằng 0`, 400);
+  return phone;
+};
+
 export const MIN_PASSWORD_LENGTH = 8;
 // bcrypt chỉ băm 72 byte đầu, phần sau bị bỏ qua nên phải chặn độ dài.
 // Đếm theo byte UTF-8: chữ có dấu chiếm 2–3 byte nên mật khẩu có dấu được ít ký tự hơn.

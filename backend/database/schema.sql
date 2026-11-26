@@ -121,7 +121,12 @@ CREATE TABLE DON_DAT_TOUR (
   trang_thai_don        VARCHAR(20) NOT NULL
     CONSTRAINT DF_DON_DAT_TOUR_trang_thai DEFAULT 'cho_xac_nhan'
     CONSTRAINT CK_DON_DAT_TOUR_trang_thai CHECK (trang_thai_don IN ('cho_xac_nhan', 'da_xac_nhan', 'da_huy', 'hoan_tat')),
-  ho_ten_lien_he        NVARCHAR(100) NOT NULL,
+  -- Suy ra từ tổng các phiếu thu trong THANH_TOAN so với tong_tien
+  trang_thai_thanh_toan VARCHAR(20) NOT NULL
+    CONSTRAINT DF_DON_DAT_TOUR_thanh_toan DEFAULT 'chua_thanh_toan'
+    CONSTRAINT CK_DON_DAT_TOUR_thanh_toan CHECK (trang_thai_thanh_toan IN ('chua_thanh_toan', 'da_dat_coc', 'da_thanh_toan')),
+  phuong_thuc_thanh_toan NVARCHAR(50) NOT NULL, -- cách khách chọn trả khi đặt: Tiền mặt, Chuyển khoản
+  ho_ten_lien_he       NVARCHAR(100) NOT NULL,
   so_dien_thoai_lien_he VARCHAR(15)   NOT NULL,
   ghi_chu               NVARCHAR(500) NULL,
   ngay_huy              DATETIME2 NULL,
@@ -131,14 +136,12 @@ CREATE TABLE DON_DAT_TOUR (
   ma_nhan_vien          INT NULL CONSTRAINT FK_DON_DAT_TOUR_NHAN_VIEN REFERENCES NGUOI_DUNG (ma_nguoi_dung)
 );
 
+-- Phiếu thu: mỗi lần công ty nhận tiền thật của đơn là một dòng (đặt cọc, trả nốt...)
 CREATE TABLE THANH_TOAN (
   ma_thanh_toan         INT IDENTITY(1, 1) CONSTRAINT PK_THANH_TOAN PRIMARY KEY,
-  phuong_thuc           NVARCHAR(50) NOT NULL, -- ví dụ: Tiền mặt, Chuyển khoản
+  phuong_thuc           NVARCHAR(50) NOT NULL, -- cách khách thực trả lần này, có thể khác cách chọn lúc đặt
   so_tien               DECIMAL(12, 0) NOT NULL CONSTRAINT CK_THANH_TOAN_so_tien CHECK (so_tien > 0),
-  trang_thai_thanh_toan VARCHAR(20) NOT NULL
-    CONSTRAINT DF_THANH_TOAN_trang_thai DEFAULT 'chua_thanh_toan'
-    CONSTRAINT CK_THANH_TOAN_trang_thai CHECK (trang_thai_thanh_toan IN ('chua_thanh_toan', 'da_dat_coc', 'da_thanh_toan')),
-  ngay_ghi_nhan         DATETIME2 NOT NULL CONSTRAINT DF_THANH_TOAN_ngay DEFAULT SYSDATETIME(),
+  ngay_ghi_nhan       DATETIME2 NOT NULL CONSTRAINT DF_THANH_TOAN_ngay DEFAULT SYSDATETIME(),
   ma_don                INT NOT NULL CONSTRAINT FK_THANH_TOAN_DON REFERENCES DON_DAT_TOUR (ma_don)
 );
 
