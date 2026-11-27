@@ -4040,7 +4040,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseURL}}/bookings/me?page=1&limit=10",
+              "raw": "{{baseURL}}/bookings/me?page=1&limit=10&status=",
               "host": [
                 "{{baseURL}}"
               ],
@@ -4056,10 +4056,14 @@
                 {
                   "key": "limit",
                   "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": ""
                 }
               ]
             },
-            "description": "Lịch sử đặt tour của tài khoản đang đăng nhập, đơn mới đặt đứng trước, có phân trang (`page`, `limit` như quy ước chung).\n\nMỗi đơn có thông tin tour (`ten_tour`, `so_ngay`, `so_dem`, `anh_dai_dien`), `ngay_khoi_hanh`, `so_luong_khach`, `tong_tien`, `trang_thai_don` và `trang_thai_thanh_toan`. `ngay_dat` là giờ máy chủ dạng `YYYY-MM-DDTHH:mm:ss`.\n\n**Thành công:** 200 \"Lịch sử đặt tour\", `data` = `{ items, pagination }`. Chưa có đơn thì `items` rỗng.\n\n**Lỗi chính:** 401, 403 như mô tả của thư mục."
+            "description": "Lịch sử đặt tour của tài khoản đang đăng nhập, đơn mới đặt đứng trước, có phân trang (`page`, `limit` như quy ước chung).\n\n**Query:** `status` (không bắt buộc): lọc theo trạng thái đơn `cho_xac_nhan`, `da_xac_nhan`, `hoan_tat`, `da_huy`. Bỏ trống hoặc giá trị sai thì lấy mọi trạng thái.\n\nMỗi đơn có thông tin tour (`ten_tour`, `so_ngay`, `so_dem`, `anh_dai_dien`), `ngay_khoi_hanh`, `so_luong_khach`, `tong_tien`, `trang_thai_don` và `trang_thai_thanh_toan`. `ngay_dat` là giờ máy chủ dạng `YYYY-MM-DDTHH:mm:ss`.\n\n**Thành công:** 200 \"Lịch sử đặt tour\", `data` gồm:\n- `items`, `pagination`: các đơn của trang đang xem (đã lọc theo `status`)\n- `filter.status`: trạng thái thực tế đã dùng để lọc (`null` khi không lọc)\n- `counts`: số đơn của từng trạng thái và `all` (tổng), luôn tính trên **mọi** đơn của khách dù đang lọc, dùng cho các tab lọc ở giao diện\n\nChưa có đơn thì `items` rỗng, mọi số trong `counts` bằng 0.\n\n**Lỗi chính:** 401, 403 như mô tả của thư mục."
           },
           "response": [
             {
@@ -4068,7 +4072,7 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10",
+                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10&status=",
                   "host": [
                     "{{baseURL}}"
                   ],
@@ -4084,6 +4088,10 @@
                     {
                       "key": "limit",
                       "value": "10"
+                    },
+                    {
+                      "key": "status",
+                      "value": ""
                     }
                   ]
                 }
@@ -4098,7 +4106,49 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"success\": true,\n    \"message\": \"Lịch sử đặt tour\",\n    \"data\": {\n        \"items\": [\n            {\n                \"ma_don\": 2,\n                \"ngay_dat\": \"2026-11-26T21:03:30\",\n                \"so_luong_khach\": 30,\n                \"don_gia\": 3990000,\n                \"tong_tien\": 119700000,\n                \"trang_thai_don\": \"cho_xac_nhan\",\n                \"ma_lich_khoi_hanh\": 14,\n                \"ngay_khoi_hanh\": \"2026-12-14\",\n                \"ma_tour\": 6,\n                \"ten_tour\": \"Huế 4 ngày 3 đêm: cố đô và nhã nhạc cung đình\",\n                \"so_ngay\": 4,\n                \"so_dem\": 3,\n                \"anh_dai_dien\": null,\n                \"trang_thai_thanh_toan\": \"chua_thanh_toan\"\n            },\n            {\n                \"ma_don\": 1,\n                \"ngay_dat\": \"2026-11-26T21:03:30\",\n                \"so_luong_khach\": 2,\n                \"don_gia\": 1190000,\n                \"tong_tien\": 2380000,\n                \"trang_thai_don\": \"cho_xac_nhan\",\n                \"ma_lich_khoi_hanh\": 16,\n                \"ngay_khoi_hanh\": \"2026-12-06\",\n                \"ma_tour\": 7,\n                \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n                \"so_ngay\": 1,\n                \"so_dem\": 0,\n                \"anh_dai_dien\": null,\n                \"trang_thai_thanh_toan\": \"chua_thanh_toan\"\n            }\n        ],\n        \"pagination\": {\n            \"page\": 1,\n            \"limit\": 10,\n            \"total\": 2,\n            \"totalPages\": 1\n        }\n    }\n}"
+              "body": "{\n    \"success\": true,\n    \"message\": \"Lịch sử đặt tour\",\n    \"data\": {\n        \"items\": [\n            {\n                \"ma_don\": 3,\n                \"ngay_dat\": \"2026-11-27T13:52:45\",\n                \"so_luong_khach\": 3,\n                \"don_gia\": 3690000,\n                \"tong_tien\": 11070000,\n                \"trang_thai_don\": \"cho_xac_nhan\",\n                \"ma_lich_khoi_hanh\": 9,\n                \"ngay_khoi_hanh\": \"2026-12-06\",\n                \"ma_tour\": 4,\n                \"ten_tour\": \"Hạ Long 2 ngày 1 đêm: ngủ đêm trên du thuyền\",\n                \"so_ngay\": 2,\n                \"so_dem\": 1,\n                \"anh_dai_dien\": null,\n                \"trang_thai_thanh_toan\": \"chua_thanh_toan\"\n            },\n            {\n                \"ma_don\": 2,\n                \"ngay_dat\": \"2026-11-27T13:52:45\",\n                \"so_luong_khach\": 2,\n                \"don_gia\": 2890000,\n                \"tong_tien\": 5780000,\n                \"trang_thai_don\": \"cho_xac_nhan\",\n                \"ma_lich_khoi_hanh\": 5,\n                \"ngay_khoi_hanh\": \"2026-12-04\",\n                \"ma_tour\": 2,\n                \"ten_tour\": \"Đà Lạt 3 ngày 2 đêm: Langbiang và đồi chè Cầu Đất\",\n                \"so_ngay\": 3,\n                \"so_dem\": 2,\n                \"anh_dai_dien\": null,\n                \"trang_thai_thanh_toan\": \"chua_thanh_toan\"\n            },\n            {\n                \"ma_don\": 1,\n                \"ngay_dat\": \"2026-11-27T13:52:45\",\n                \"so_luong_khach\": 2,\n                \"don_gia\": 1190000,\n                \"tong_tien\": 2380000,\n                \"trang_thai_don\": \"da_huy\",\n                \"ma_lich_khoi_hanh\": 16,\n                \"ngay_khoi_hanh\": \"2026-12-07\",\n                \"ma_tour\": 7,\n                \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n                \"so_ngay\": 1,\n                \"so_dem\": 0,\n                \"anh_dai_dien\": null,\n                \"trang_thai_thanh_toan\": \"chua_thanh_toan\"\n            }\n        ],\n        \"pagination\": {\n            \"page\": 1,\n            \"limit\": 10,\n            \"total\": 3,\n            \"totalPages\": 1\n        },\n        \"filter\": {\n            \"status\": null\n        },\n        \"counts\": {\n            \"cho_xac_nhan\": 2,\n            \"da_xac_nhan\": 0,\n            \"da_huy\": 1,\n            \"hoan_tat\": 0,\n            \"all\": 3\n        }\n    }\n}"
+            },
+            {
+              "name": "200 Lọc theo trạng thái (đơn đã hủy)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10&status=da_huy",
+                  "host": [
+                    "{{baseURL}}"
+                  ],
+                  "path": [
+                    "bookings",
+                    "me"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "status",
+                      "value": "da_huy"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Lịch sử đặt tour\",\n    \"data\": {\n        \"items\": [\n            {\n                \"ma_don\": 1,\n                \"ngay_dat\": \"2026-11-27T13:52:45\",\n                \"so_luong_khach\": 2,\n                \"don_gia\": 1190000,\n                \"tong_tien\": 2380000,\n                \"trang_thai_don\": \"da_huy\",\n                \"ma_lich_khoi_hanh\": 16,\n                \"ngay_khoi_hanh\": \"2026-12-07\",\n                \"ma_tour\": 7,\n                \"ten_tour\": \"Ninh Bình trong ngày: Tràng An và hang Múa\",\n                \"so_ngay\": 1,\n                \"so_dem\": 0,\n                \"anh_dai_dien\": null,\n                \"trang_thai_thanh_toan\": \"chua_thanh_toan\"\n            }\n        ],\n        \"pagination\": {\n            \"page\": 1,\n            \"limit\": 10,\n            \"total\": 1,\n            \"totalPages\": 1\n        },\n        \"filter\": {\n            \"status\": \"da_huy\"\n        },\n        \"counts\": {\n            \"cho_xac_nhan\": 2,\n            \"da_xac_nhan\": 0,\n            \"da_huy\": 1,\n            \"hoan_tat\": 0,\n            \"all\": 3\n        }\n    }\n}"
             },
             {
               "name": "200 Chưa có đơn nào",
@@ -4113,7 +4163,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10",
+                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10&status=",
                   "host": [
                     "{{baseURL}}"
                   ],
@@ -4129,6 +4179,10 @@
                     {
                       "key": "limit",
                       "value": "10"
+                    },
+                    {
+                      "key": "status",
+                      "value": ""
                     }
                   ]
                 }
@@ -4143,7 +4197,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"success\": true,\n    \"message\": \"Lịch sử đặt tour\",\n    \"data\": {\n        \"items\": [],\n        \"pagination\": {\n            \"page\": 1,\n            \"limit\": 10,\n            \"total\": 0,\n            \"totalPages\": 1\n        }\n    }\n}"
+              "body": "{\n    \"success\": true,\n    \"message\": \"Lịch sử đặt tour\",\n    \"data\": {\n        \"items\": [],\n        \"pagination\": {\n            \"page\": 1,\n            \"limit\": 10,\n            \"total\": 0,\n            \"totalPages\": 1\n        },\n        \"filter\": {\n            \"status\": null\n        },\n        \"counts\": {\n            \"cho_xac_nhan\": 0,\n            \"da_xac_nhan\": 0,\n            \"da_huy\": 0,\n            \"hoan_tat\": 0,\n            \"all\": 0\n        }\n    }\n}"
             },
             {
               "name": "403 Tài khoản nhân viên",
@@ -4158,7 +4212,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10",
+                  "raw": "{{baseURL}}/bookings/me?page=1&limit=10&status=",
                   "host": [
                     "{{baseURL}}"
                   ],
@@ -4174,6 +4228,10 @@
                     {
                       "key": "limit",
                       "value": "10"
+                    },
+                    {
+                      "key": "status",
+                      "value": ""
                     }
                   ]
                 }
