@@ -63,23 +63,35 @@ const BOOKING_FROM = `
   JOIN LICH_KHOI_HANH l ON l.ma_lich_khoi_hanh = d.ma_lich_khoi_hanh
   JOIN TOUR t ON t.ma_tour = l.ma_tour`;
 
-export const countBookingsByCustomer = async (customerId) => {
-  const request = await createRequest();
-  const result = await request
-    .input('khachId', sql.Int, customerId)
-    .query('SELECT COUNT(*) AS total FROM DON_DAT_TOUR WHERE ma_khach_hang = @khachId');
+// status = null thì lấy mọi trạng thái
+const CUSTOMER_WHERE = 'WHERE d.ma_khach_hang = @khachId AND (@status IS NULL OR d.trang_thai_don = @status)';
+
+const customerRequest = async (customerId, status) =>
+  (await createRequest()).input('khachId', sql.Int, customerId).input('status', sql.VarChar(20), status);
+
+export const countBookingsByCustomer = async (customerId, status) => {
+  const request = await customerRequest(customerId, status);
+  const result = await request.query(`SELECT COUNT(*) AS total FROM DON_DAT_TOUR d ${CUSTOMER_WHERE}`);
   return result.recordset[0].total;
 };
 
-export const findBookingsByCustomer = async (customerId, { offset, limit }) => {
+// Số đơn của từng trạng thái (cho các tab lọc), trạng thái chưa có đơn thì không có dòng
+export const countBookingsByStatus = async (customerId) => {
   const request = await createRequest();
+  const result = await request.input('khachId', sql.Int, customerId).query(`
+    SELECT trang_thai_don, COUNT(*) AS total FROM DON_DAT_TOUR
+    WHERE ma_khach_hang = @khachId GROUP BY trang_thai_don`);
+  return result.recordset;
+};
+
+export const findBookingsByCustomer = async (customerId, status, { offset, limit }) => {
+  const request = await customerRequest(customerId, status);
   const result = await request
-    .input('khachId', sql.Int, customerId)
     .input('offset', sql.Int, offset)
     .input('limit', sql.Int, limit).query(`
       ${BOOKING_SELECT}
       ${BOOKING_FROM}
-      WHERE d.ma_khach_hang = @khachId
+      ${CUSTOMER_WHERE}
       ORDER BY d.ngay_dat DESC, d.ma_don DESC
       OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`);
   return result.recordset;

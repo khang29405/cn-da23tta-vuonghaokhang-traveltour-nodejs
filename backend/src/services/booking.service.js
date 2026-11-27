@@ -4,7 +4,7 @@ import { runInTransaction } from '../utils/transaction.js';
 import { getToday, formatDate } from '../utils/date.js';
 import { parsePagination, buildPagination, toPaginatedData } from '../utils/pagination.js';
 import { requireId, requireInteger, requireText, optionalText, requirePhone } from '../utils/validation.js';
-import { DEPARTURE_STATUS, PAYMENT_METHODS } from '../utils/constants.js';
+import { BOOKING_STATUS, DEPARTURE_STATUS, PAYMENT_METHODS } from '../utils/constants.js';
 
 // Cột tiền là DECIMAL(12, 0)
 const MAX_AMOUNT = 999_999_999_999;
@@ -72,10 +72,22 @@ export const createBooking = async (customerId, body) => {
   return getMyBookingDetail(customerId, bookingId);
 };
 
+// ?status= lọc theo trạng thái đơn, giá trị sai thì bỏ qua như các bộ lọc khác.
+// counts luôn tính trên mọi đơn của khách để các tab hiện đủ số lượng dù đang lọc.
 export const getMyBookings = async (customerId, query) => {
-  const pagination = buildPagination(parsePagination(query), await bookingModel.countBookingsByCustomer(customerId));
-  const bookings = await bookingModel.findBookingsByCustomer(customerId, pagination);
-  return toPaginatedData(bookings, pagination);
+  const status = Object.values(BOOKING_STATUS).includes(query.status) ? query.status : null;
+  const [total, statusRows] = await Promise.all([
+    bookingModel.countBookingsByCustomer(customerId, status),
+    bookingModel.countBookingsByStatus(customerId),
+  ]);
+  const pagination = buildPagination(parsePagination(query), total);
+  const bookings = await bookingModel.findBookingsByCustomer(customerId, status, pagination);
+
+  const counts = Object.fromEntries(Object.values(BOOKING_STATUS).map((value) => [value, 0]));
+  for (const row of statusRows) counts[row.trang_thai_don] = row.total;
+  counts.all = statusRows.reduce((sum, row) => sum + row.total, 0);
+
+  return { ...toPaginatedData(bookings, pagination), filter: { status }, counts };
 };
 
 // Đơn của người khác trả 404 như đơn không tồn tại để không lộ mã đơn nào đang có
