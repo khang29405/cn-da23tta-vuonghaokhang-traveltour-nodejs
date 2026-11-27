@@ -11,6 +11,8 @@ import RegisterPage from '../pages/public/RegisterPage.jsx';
 import NotFoundPage from '../pages/public/NotFoundPage.jsx';
 import BookingPage from '../pages/customer/BookingPage.jsx';
 import BookingSuccessPage from '../pages/customer/BookingSuccessPage.jsx';
+import MyBookingsPage from '../pages/customer/MyBookingsPage.jsx';
+import MyBookingDetailPage from '../pages/customer/MyBookingDetailPage.jsx';
 import DashboardPlaceholder from '../pages/admin/DashboardPlaceholder.jsx';
 import CategoryPage from '../pages/admin/category/CategoryPage.jsx';
 import TourListPage from '../pages/admin/tour/TourListPage.jsx';
@@ -49,6 +51,8 @@ const AppRouter = () => (
       <Route element={<Layout />}>
         <Route path="tour/:tourId/dat-tour" element={<BookingPage />} />
         <Route path="dat-tour/thanh-cong/:bookingId" element={<BookingSuccessPage />} />
+        <Route path="don-cua-toi" element={<MyBookingsPage />} />
+        <Route path="don-cua-toi/:bookingId" element={<MyBookingDetailPage />} />
       </Route>
     </Route>
 

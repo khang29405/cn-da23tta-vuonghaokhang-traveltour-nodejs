@@ -1,0 +1,436 @@
+.order-detail {
+  max-width: 1120px;
+  padding-block: var(--space-5) var(--space-10);
+}
+
+.order-detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.order-detail__back svg {
+  font-size: var(--text-xs);
+}
+
+.order-detail__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  margin-block: var(--space-3) var(--space-4);
+}
+
+.order-detail__title {
+  font-size: 1.5rem;
+}
+
+.order-detail__layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.order-detail__main {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.order-panel {
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.order-panel--tour {
+  padding: 0;
+  overflow: hidden;
+}
+
+.order-panel__body {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.order-panel__title {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.order-detail__cover {
+  display: block;
+  aspect-ratio: 21 / 8;
+  overflow: hidden;
+}
+
+.order-detail__tour-name {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text);
+}
+
+.order-detail__tour-name:hover {
+  color: var(--color-primary);
+}
+
+.order-detail__tour-meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.order-detail__progress {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.order-detail__next {
+  font-size: var(--text-sm);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.order-detail__cancelled {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.trip-facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4) var(--space-3);
+}
+
+.trip-fact {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.trip-fact__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-primary-soft);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+}
+
+.trip-fact dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.trip-fact dd {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.trip-fact .trip-fact__sub {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.order-detail__rows {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.order-detail__rows > div {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: var(--space-3);
+}
+
+.order-detail__rows dt {
+  color: var(--color-text-muted);
+}
+
+.order-detail__rows dd {
+  font-weight: 600;
+}
+
+.order-detail__rows .order-detail__note {
+  font-weight: 400;
+  white-space: pre-line;
+}
+
+.timeline {
+  list-style: none;
+}
+
+.timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+}
+
+.timeline__item:last-child {
+  padding-bottom: 0;
+}
+
+/* Đường nối dọc giữa các mốc */
+.timeline__item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 34px;
+  bottom: 2px;
+  left: 15px;
+  border-left: 2px solid var(--color-border);
+}
+
+.timeline__dot {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: var(--text-xs);
+}
+
+.timeline__item--primary .timeline__dot {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.timeline__item--success .timeline__dot {
+  background: #e9f6ef;
+  color: var(--color-success);
+}
+
+.timeline__item--muted .timeline__dot {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+.timeline__title {
+  padding-top: 5px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.timeline__text,
+.timeline__time {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.order-side {
+  display: grid;
+  gap: var(--space-4);
+  align-self: start;
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.order-side__code {
+  display: grid;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.order-side__code strong {
+  font-size: 1.625rem;
+  line-height: 1.2;
+  color: var(--color-primary-dark);
+}
+
+.order-side__booked {
+  margin-top: 2px;
+}
+
+.order-side__price,
+.pay-progress__rows {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.order-side__price > div,
+.pay-progress__rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.order-side__price dt,
+.pay-progress__rows dt {
+  color: var(--color-text-muted);
+}
+
+.order-side__price dd,
+.pay-progress__rows dd {
+  font-weight: 600;
+  text-align: right;
+}
+
+.order-side__total {
+  align-items: baseline;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.order-side__total dt {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.order-side__total dd {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.pay-progress {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.pay-progress__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.pay-progress__bar {
+  height: 8px;
+  overflow: hidden;
+  background: var(--color-bg);
+  border-radius: 999px;
+}
+
+.pay-progress__bar span {
+  display: block;
+  height: 100%;
+  background: var(--color-success);
+  border-radius: inherit;
+  transition: width 0.6s ease-out;
+}
+
+.pay-progress__remaining {
+  color: var(--color-accent);
+}
+
+.order-side__help {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.order-side__call {
+  width: 100%;
+}
+
+.order-detail__message {
+  padding-block: var(--space-10);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.order-detail__message-title {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-xl);
+  color: var(--color-text);
+}
+
+.order-detail__error {
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: var(--space-4);
+}
+
+.order-detail__error .btn {
+  margin-left: auto;
+}
+
+.order-detail__skeleton-line {
+  width: 120px;
+  height: 14px;
+}
+
+.order-detail__skeleton-title {
+  width: 200px;
+  height: 28px;
+  margin-block: var(--space-3) var(--space-4);
+}
+
+.order-detail__skeleton-block {
+  height: 480px;
+  border-radius: var(--radius-lg);
+}
+
+.order-detail__skeleton-side {
+  height: 360px;
+  border-radius: var(--radius-lg);
+}
+
+/* Điện thoại: đưa tổng tiền, thanh toán lên ngay sau phần tour thay vì nằm cuối trang */
+@media (max-width: 1023.98px) {
+  .order-detail__main {
+    display: contents;
+  }
+
+  .order-panel--tour {
+    order: -2;
+  }
+
+  .order-side {
+    order: -1;
+  }
+}
+
+@media (min-width: 640px) {
+  .trip-facts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .order-detail__layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+  }
+
+  /* Tổng tiền và thanh toán luôn trong tầm mắt khi cuộn xem lịch sử đơn; 76px chừa chỗ cho navbar dính */
+  .order-side {
+    position: sticky;
+    top: 76px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pay-progress__bar span {
+    transition: none;
+  }
+}
