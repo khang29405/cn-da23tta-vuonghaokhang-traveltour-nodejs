@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import AuthShell from '../../components/AuthShell/AuthShell.jsx';
@@ -37,6 +37,7 @@ const validate = (form) => {
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
@@ -63,7 +64,8 @@ const RegisterPage = () => {
         so_dien_thoai: form.so_dien_thoai.trim() || undefined,
         mat_khau: form.mat_khau,
       });
-      navigate('/dang-nhap', { state: { registeredEmail: newUser.email } });
+      // Giữ trang đang định vào (ví dụ trang đặt tour) để đăng nhập xong quay lại đúng chỗ
+      navigate('/dang-nhap', { state: { registeredEmail: newUser.email, from: state?.from } });
     } catch (error) {
       if (error.response?.status === 409) {
         setErrors({ email: getErrorMessage(error) });
@@ -149,7 +151,10 @@ const RegisterPage = () => {
       </form>
 
       <p className="auth-form__switch">
-        Đã có tài khoản? <Link to="/dang-nhap">Đăng nhập</Link>
+        Đã có tài khoản?{' '}
+        <Link to="/dang-nhap" state={state?.from ? { from: state.from } : undefined}>
+          Đăng nhập
+        </Link>
       </p>
     </AuthShell>
   );

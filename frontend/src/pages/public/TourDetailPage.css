@@ -225,6 +225,30 @@
   margin-top: var(--space-4);
 }
 
+.booking-box__link {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-2);
+  padding: var(--space-1);
+  background: none;
+  border: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.booking-box__link:hover {
+  text-decoration: underline;
+}
+
+.booking-box__staff-note {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
 .booking-box__help {
   margin-top: var(--space-3);
   font-size: var(--text-sm);
@@ -363,6 +387,11 @@
 .departure-list__table .departure-list__seats-col {
   text-align: right;
   white-space: nowrap;
+}
+
+.departure-list__table .departure-list__action-col {
+  width: 1%;
+  text-align: right;
 }
 
 .tour-detail__error {

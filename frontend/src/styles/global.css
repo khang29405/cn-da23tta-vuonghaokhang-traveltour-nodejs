@@ -233,6 +233,22 @@ h4 {
   color: #0d6b3a;
 }
 
+.alert--info {
+  background: var(--color-primary-soft);
+  border-color: #c3dafa;
+  color: var(--color-primary-dark);
+}
+
+/* Ẩn khỏi màn hình nhưng trình đọc màn hình vẫn đọc */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

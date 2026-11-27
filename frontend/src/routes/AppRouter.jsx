@@ -9,6 +9,8 @@ import TourDetailPage from '../pages/public/TourDetailPage.jsx';
 import LoginPage from '../pages/public/LoginPage.jsx';
 import RegisterPage from '../pages/public/RegisterPage.jsx';
 import NotFoundPage from '../pages/public/NotFoundPage.jsx';
+import BookingPage from '../pages/customer/BookingPage.jsx';
+import BookingSuccessPage from '../pages/customer/BookingSuccessPage.jsx';
 import DashboardPlaceholder from '../pages/admin/DashboardPlaceholder.jsx';
 import CategoryPage from '../pages/admin/category/CategoryPage.jsx';
 import TourListPage from '../pages/admin/tour/TourListPage.jsx';
@@ -40,6 +42,14 @@ const AppRouter = () => (
         <Route path="dang-ky" element={<RegisterPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
+    </Route>
+
+    {/* ProtectedRoute đứng ngoài Layout vì trang 403 của nó đã tự bọc Layout */}
+    <Route element={<ProtectedRoute roles={[ROLES.CUSTOMER]} />}>
+      <Route element={<Layout />}>
+        <Route path="tour/:tourId/dat-tour" element={<BookingPage />} />
+        <Route path="dat-tour/thanh-cong/:bookingId" element={<BookingSuccessPage />} />
+      </Route>
     </Route>
 
     {/* Quản trị viên kế thừa quyền nhân viên nên vào được cả khu nhân viên */}

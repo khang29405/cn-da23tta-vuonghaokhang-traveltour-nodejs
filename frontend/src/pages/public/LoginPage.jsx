@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCircleExclamation, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import AuthShell from '../../components/AuthShell/AuthShell.jsx';
 import FormField from '../../components/FormField/FormField.jsx';
 import PasswordInput from '../../components/PasswordInput/PasswordInput.jsx';
@@ -22,6 +22,8 @@ const LoginPage = () => {
   const { login } = useAuth();
   const { state } = useLocation();
   const registeredEmail = state?.registeredEmail;
+  const from = state?.from;
+  const isBooking = from?.pathname.endsWith('/dat-tour');
 
   const [form, setForm] = useState({ email: registeredEmail ?? '', mat_khau: '' });
   const [errors, setErrors] = useState({});
@@ -59,6 +61,12 @@ const LoginPage = () => {
         <p className="alert alert--success auth-form__alert" role="status">
           <FontAwesomeIcon icon={faCircleCheck} />
           Đăng ký thành công. Mời bạn nhập mật khẩu để đăng nhập.
+        </p>
+      )}
+      {isBooking && !registeredEmail && !serverError && (
+        <p className="alert alert--info auth-form__alert" role="status">
+          <FontAwesomeIcon icon={faCircleInfo} />
+          Đăng nhập để tiếp tục đặt tour. Chưa có tài khoản thì đăng ký nhanh ở cuối trang.
         </p>
       )}
       {serverError && (
@@ -105,7 +113,10 @@ const LoginPage = () => {
       </form>
 
       <p className="auth-form__switch">
-        Chưa có tài khoản? <Link to="/dang-ky">Đăng ký ngay</Link>
+        Chưa có tài khoản?{' '}
+        <Link to="/dang-ky" state={from ? { from } : undefined}>
+          Đăng ký ngay
+        </Link>
       </p>
     </AuthShell>
   );

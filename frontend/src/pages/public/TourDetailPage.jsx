@@ -18,6 +18,9 @@ import { getErrorMessage } from '../../api/axiosClient.js';
 import { getTourTypeStyle, tourTypeCssVars } from '../../config/tourTypeStyles.js';
 import { getTransportIcon } from '../../config/transportIcons.js';
 import siteInfo from '../../config/siteInfo.js';
+import { bookingPath } from '../../config/booking.js';
+import { ROLES } from '../../config/roles.js';
+import { useAuth } from '../../context/authContext.js';
 import { FEW_SEATS } from '../../components/TourCard/TourCard.jsx';
 import { addDays, formatDateOnly, formatDuration, formatPrice, formatWeekday } from '../../utils/format.js';
 import './TourDetailPage.css';
@@ -35,7 +38,7 @@ const DateCell = ({ date }) => (
 
 // Giá giống nhau ở mọi lịch (giá theo tour) nên bảng không lặp cột giá; ngày về = ngày đi + (số ngày - 1),
 // tour trong ngày thì không cần cột ngày về
-const DepartureTable = ({ departures, days }) => {
+const DepartureTable = ({ departures, days, tourId, canBook }) => {
   const hasReturnDate = days > 1;
   if (departures.length === 0) {
     return (
@@ -56,7 +59,11 @@ const DepartureTable = ({ departures, days }) => {
             <th scope="col" className="departure-list__seats-col">
               Chỗ trống
             </th>
-            {/* Bước 21: thêm cột nút "Đặt tour" cho từng lịch */}
+            {canBook && (
+              <th scope="col" className="departure-list__action-col">
+                <span className="visually-hidden">Đặt tour</span>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -78,6 +85,17 @@ const DepartureTable = ({ departures, days }) => {
                 </span>
                 <span className="departure-list__total">trên {departure.tong_so_cho} chỗ</span>
               </td>
+              {canBook && (
+                <td className="departure-list__action-col">
+                  <Link
+                    to={bookingPath(tourId, departure.ma_lich_khoi_hanh)}
+                    className="btn btn--outline btn--sm"
+                    aria-label={`Đặt tour ngày ${formatDateOnly(departure.ngay_khoi_hanh)}`}
+                  >
+                    Chọn
+                  </Link>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -108,6 +126,9 @@ const DetailSkeleton = () => (
 
 const TourDetailPage = () => {
   const { tourId } = useParams();
+  const { user } = useAuth();
+  // Chưa đăng nhập vẫn thấy nút đặt: bấm vào sẽ qua đăng nhập rồi quay lại trang đặt tour
+  const canBook = !user || user.vai_tro === ROLES.CUSTOMER;
   const [tour, setTour] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -247,10 +268,21 @@ const TourDetailPage = () => {
             )}
           </p>
 
-          {/* Bước 21: thay nút này bằng nút "Đặt tour" mở form đặt tour */}
-          <button type="button" className="btn btn--accent booking-box__action" onClick={scrollToDepartures}>
-            {nearest ? `Xem ${tour.lich_khoi_hanh.length} ngày khởi hành` : 'Xem lịch khởi hành'}
-          </button>
+          {nearest && canBook ? (
+            <>
+              <Link to={bookingPath(tour.ma_tour, nearest.ma_lich_khoi_hanh)} className="btn btn--accent booking-box__action">
+                Đặt tour
+              </Link>
+              <button type="button" className="booking-box__link" onClick={scrollToDepartures}>
+                Chọn ngày khác ({tour.lich_khoi_hanh.length} ngày khởi hành)
+              </button>
+            </>
+          ) : (
+            <button type="button" className="btn btn--accent booking-box__action" onClick={scrollToDepartures}>
+              {nearest ? `Xem ${tour.lich_khoi_hanh.length} ngày khởi hành` : 'Xem lịch khởi hành'}
+            </button>
+          )}
+          {!canBook && <p className="booking-box__staff-note">Chỉ tài khoản khách hàng mới đặt được tour.</p>}
 
           <p className="booking-box__help">
             Cần tư vấn?{' '}
@@ -287,7 +319,7 @@ const TourDetailPage = () => {
 
           <section className="tour-detail__section tour-detail__departures" ref={departuresRef}>
             <h2 className="tour-detail__heading">Lịch khởi hành</h2>
-            <DepartureTable departures={tour.lich_khoi_hanh} days={tour.so_ngay} />
+            <DepartureTable departures={tour.lich_khoi_hanh} days={tour.so_ngay} tourId={tour.ma_tour} canBook={canBook} />
           </section>
 
           {/* Bước 27: mục "Đánh giá" của khách đã đi tour đặt ở đây */}
