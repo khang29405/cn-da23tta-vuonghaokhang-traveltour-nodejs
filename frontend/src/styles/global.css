@@ -249,6 +249,40 @@ h4 {
   white-space: nowrap;
 }
 
+/* Nhãn trạng thái dùng chung cho trang quản trị và trang khách hàng */
+.status-badge {
+  display: inline-block;
+  padding: 0.125rem var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.status-badge--visible {
+  background: #e9f6ef;
+  color: var(--color-success);
+}
+
+.status-badge--hidden {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+.status-badge--warning {
+  background: #fdf3e2;
+  color: var(--color-warning);
+}
+
+.status-badge--danger {
+  background: #fdeeee;
+  color: var(--color-danger);
+}
+
+.status-badge--info {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

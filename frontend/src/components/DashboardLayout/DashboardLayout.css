@@ -157,34 +157,6 @@
   font-size: var(--text-lg);
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 0.125rem var(--space-2);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-xs);
-  font-weight: 600;
-}
-
-.status-badge--visible {
-  background: #e9f6ef;
-  color: var(--color-success);
-}
-
-.status-badge--hidden {
-  background: var(--color-bg);
-  color: var(--color-text-muted);
-}
-
-.status-badge--warning {
-  background: #fdf3e2;
-  color: var(--color-warning);
-}
-
-.status-badge--danger {
-  background: #fdeeee;
-  color: var(--color-danger);
-}
-
 /* Đường kẻ dưới vẽ bằng box-shadow bên trong (không dùng border + margin âm) để gạch chân của tab
    đang chọn đè lên đường kẻ mà không làm khung cuộn ngang sinh thêm thanh cuộn dọc */
 .page-tabs {

@@ -12,17 +12,14 @@ import {
   faSuitcaseRolling,
 } from '@fortawesome/free-solid-svg-icons';
 import TourImage from '../../components/TourImage/TourImage.jsx';
+import BookingProgress from './BookingProgress.jsx';
 import { getMyBooking } from '../../api/bookingApi.js';
 import { getErrorMessage } from '../../api/axiosClient.js';
-import { BOOKING_STATUS_LABELS, MY_BOOKINGS_PATH, PAYMENT_STATUS_LABELS } from '../../config/booking.js';
+import { BOOKING_STATUS, MY_BOOKINGS_PATH, PAYMENT_STATUS } from '../../config/booking.js';
 import siteInfo from '../../config/siteInfo.js';
 import { toAssetUrl } from '../../utils/assetUrl.js';
 import { addDays, formatDateOnly, formatDuration, formatPrice, formatWeekday } from '../../utils/format.js';
 import './BookingSuccessPage.css';
-
-// Đúng thứ tự trạng thái thật của đơn: chờ xác nhận → đã xác nhận → đặt cọc/thanh toán → đi tour
-const STEPS = ['Giữ chỗ', 'Gọi xác nhận', 'Thanh toán', 'Khởi hành'];
-const CURRENT_STEP = 1;
 
 // Chùm hạt tỏa ra quanh dấu tick (một lần khi vào trang), màu theo bảng màu của website
 const SPARKS = ['#0b63ce', '#ff6a13', '#12854a', '#0f8a8a', '#f5a524', '#0b63ce', '#ff6a13', '#12854a', '#0f8a8a', '#f5a524'];
@@ -101,7 +98,7 @@ const BookingSuccessPage = () => {
           <p className="confirm__lead">
             Chúng tôi đã giữ <strong>{booking.so_luong_khach} chỗ</strong> cho bạn · Mã đơn{' '}
             <strong>#{booking.ma_don}</strong>
-            <span className="confirm__status">{BOOKING_STATUS_LABELS[booking.trang_thai_don]}</span>
+            <span className="confirm__status">{BOOKING_STATUS[booking.trang_thai_don].label}</span>
           </p>
         </header>
 
@@ -137,7 +134,7 @@ const BookingSuccessPage = () => {
             <div className="confirm__fact">
               <dt>Thanh toán</dt>
               <dd>{booking.phuong_thuc_thanh_toan}</dd>
-              <dd className="confirm__fact-sub">{PAYMENT_STATUS_LABELS[booking.trang_thai_thanh_toan]}</dd>
+              <dd className="confirm__fact-sub">{PAYMENT_STATUS[booking.trang_thai_thanh_toan].label}</dd>
             </div>
             <div className="confirm__fact confirm__fact--total">
               <dt>Tổng tiền</dt>
@@ -145,22 +142,7 @@ const BookingSuccessPage = () => {
             </div>
           </dl>
 
-          <ol className="progress" aria-label="Tiến trình đơn đặt tour">
-            {STEPS.map((step, index) => {
-              const status = index < CURRENT_STEP ? 'done' : index === CURRENT_STEP ? 'current' : 'upcoming';
-              return (
-                <li key={step} className={`progress__step progress__step--${status}`}>
-                  <span className="progress__marker" aria-hidden="true">
-                    {status === 'done' ? <FontAwesomeIcon icon={faCheck} /> : index + 1}
-                  </span>
-                  <span className="progress__label">
-                    {step}
-                    {status === 'current' && <span className="visually-hidden"> (bước hiện tại)</span>}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
+          <BookingProgress status={booking.trang_thai_don} paymentStatus={booking.trang_thai_thanh_toan} />
 
           <p className="confirm__next">
             <FontAwesomeIcon icon={faPhone} className="confirm__next-icon" />
