@@ -45,4 +45,10 @@ const pad = (number) => String(number).padStart(2, '0');
 // Ngày theo giờ máy người dùng, dạng YYYY-MM-DD giống giá trị của input type="date"
 export const toDateInputValue = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
+// API trả ngày giờ dạng 2026-11-26T19:54:51 theo giờ máy chủ (không có múi giờ) → 26/11/2026 19:54
+export const formatDateTime = (value) => {
+  const [date, time = ''] = value.split('T');
+  return `${formatDateOnly(date)} ${time.slice(0, 5)}`.trim();
+};
+
 export const formatDuration = (soNgay, soDem) => (soDem > 0 ? `${soNgay} ngày ${soDem} đêm` : `${soNgay} ngày`);

@@ -6,13 +6,16 @@ import {
   faChevronDown,
   faGaugeHigh,
   faClipboardList,
+  faReceipt,
   faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/authContext.js';
 import { ROLES, ROLE_LABELS, ADMIN_PATH, STAFF_PATH } from '../../config/roles.js';
+import { MY_BOOKINGS_PATH } from '../../config/booking.js';
 
-// Mục riêng theo vai trò; mục của khách hàng (lịch sử đặt tour, yêu thích, hồ sơ) thêm ở Bước 22, 30, 36
+// Mục riêng theo vai trò; mục yêu thích, hồ sơ của khách hàng thêm ở Bước 30, 36
 const roleLinks = {
+  [ROLES.CUSTOMER]: [{ to: MY_BOOKINGS_PATH, label: 'Đơn của tôi', icon: faReceipt }],
   [ROLES.ADMIN]: [{ to: ADMIN_PATH, label: 'Trang quản trị', icon: faGaugeHigh }],
   [ROLES.STAFF]: [{ to: STAFF_PATH, label: 'Xử lý đơn đặt tour', icon: faClipboardList }],
 };
