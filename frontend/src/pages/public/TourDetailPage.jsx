@@ -6,120 +6,107 @@ import {
   faClock,
   faLocationDot,
   faFlag,
-  faCalendarDays,
   faCircleExclamation,
   faRotateRight,
-  faPhone,
 } from '@fortawesome/free-solid-svg-icons';
 import TourGallery from './TourGallery.jsx';
+import TourItinerary from './TourItinerary.jsx';
+import DepartureCards from './DepartureCards.jsx';
+import TourBookingBox, { MobileBookingBar } from './TourBookingBox.jsx';
+import RelatedTours from './RelatedTours.jsx';
 import TourImage from '../../components/TourImage/TourImage.jsx';
 import { getTour } from '../../api/publicTourApi.js';
 import { getErrorMessage } from '../../api/axiosClient.js';
 import { getTourTypeStyle, tourTypeCssVars } from '../../config/tourTypeStyles.js';
 import { getTransportIcon } from '../../config/transportIcons.js';
 import siteInfo from '../../config/siteInfo.js';
-import { bookingPath } from '../../config/booking.js';
 import { ROLES } from '../../config/roles.js';
 import { useAuth } from '../../context/authContext.js';
-import { FEW_SEATS } from '../../components/TourCard/TourCard.jsx';
-import { addDays, formatDateOnly, formatDuration, formatPrice, formatWeekday } from '../../utils/format.js';
+import { formatDuration, formatPrice } from '../../utils/format.js';
 import './TourDetailPage.css';
 
 const hotlineHref = `tel:${siteInfo.hotline.replace(/\s/g, '')}`;
 
+// Bước 27: thêm mục "Đánh giá" vào đây và vào phần nội dung
+const SECTIONS = [
+  { id: 'tong-quan', label: 'Tổng quan' },
+  { id: 'lich-trinh', label: 'Lịch trình' },
+  { id: 'lich-khoi-hanh', label: 'Lịch khởi hành' },
+];
+
+// Navbar 60px + thanh mục ~48px: mục được tính là "đang xem" khi đầu mục đã lên tới dưới thanh mục
+const SPY_OFFSET = 130;
+
 const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-const DateCell = ({ date }) => (
-  <>
-    <span className="departure-list__date">{formatDateOnly(date)}</span>
-    <span className="departure-list__weekday">{formatWeekday(date)}</span>
-  </>
-);
+const scrollToSection = (id) =>
+  document.getElementById(id)?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
 
-// Giá giống nhau ở mọi lịch (giá theo tour) nên bảng không lặp cột giá; ngày về = ngày đi + (số ngày - 1),
-// tour trong ngày thì không cần cột ngày về
-const DepartureTable = ({ departures, days, tourId, canBook }) => {
-  const hasReturnDate = days > 1;
-  if (departures.length === 0) {
-    return (
-      <p className="tour-detail__empty">
-        Tour hiện chưa có lịch khởi hành còn chỗ. Gọi <a href={hotlineHref}>{siteInfo.hotline}</a> để được tư vấn lịch
-        mới.
-      </p>
+const useActiveSection = (enabled) => {
+  const [active, setActive] = useState(SECTIONS[0].id);
+
+  useEffect(() => {
+    if (!enabled) return undefined;
+    const update = () => {
+      let current = SECTIONS[0].id;
+      SECTIONS.forEach(({ id }) => {
+        const element = document.getElementById(id);
+        if (element && element.getBoundingClientRect().top <= SPY_OFFSET) current = id;
+      });
+      setActive(current);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, [enabled]);
+
+  return active;
+};
+
+// Chỉ báo khi hộp đặt tour đã cuộn lên khỏi màn hình (không tính lúc nó còn nằm phía dưới)
+const useScrolledPast = (ref, enabled) => {
+  const [isPast, setIsPast] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!enabled || !element || typeof IntersectionObserver === 'undefined') return undefined;
+    const observer = new IntersectionObserver(([entry]) =>
+      setIsPast(!entry.isIntersecting && entry.boundingClientRect.top < 0),
     );
-  }
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref, enabled]);
 
-  return (
-    <div className="departure-list">
-      <table className="departure-list__table">
-        <thead>
-          <tr>
-            <th scope="col">Ngày đi</th>
-            {hasReturnDate && <th scope="col">Ngày về</th>}
-            <th scope="col" className="departure-list__seats-col">
-              Chỗ trống
-            </th>
-            {canBook && (
-              <th scope="col" className="departure-list__action-col">
-                <span className="visually-hidden">Đặt tour</span>
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {departures.map((departure) => (
-            <tr key={departure.ma_lich_khoi_hanh}>
-              <td>
-                <DateCell date={departure.ngay_khoi_hanh} />
-              </td>
-              {hasReturnDate && (
-                <td>
-                  <DateCell date={addDays(departure.ngay_khoi_hanh, days - 1)} />
-                </td>
-              )}
-              <td className="departure-list__seats-col">
-                <span
-                  className={`departure-list__seats${departure.so_cho_con_lai <= FEW_SEATS ? ' departure-list__seats--few' : ''}`}
-                >
-                  {departure.so_cho_con_lai} chỗ
-                </span>
-                <span className="departure-list__total">trên {departure.tong_so_cho} chỗ</span>
-              </td>
-              {canBook && (
-                <td className="departure-list__action-col">
-                  <Link
-                    to={bookingPath(tourId, departure.ma_lich_khoi_hanh)}
-                    className="btn btn--outline btn--sm"
-                    aria-label={`Đặt tour ngày ${formatDateOnly(departure.ngay_khoi_hanh)}`}
-                  >
-                    Chọn
-                  </Link>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  return enabled && isPast;
 };
 
 const DetailSkeleton = () => (
   <div className="container tour-detail" aria-busy="true" aria-label="Đang tải thông tin tour">
     <div className="skeleton tour-detail__skeleton-line" />
     <div className="skeleton tour-detail__skeleton-title" />
-    <div className="skeleton tour-detail__skeleton-facts" />
     <div className="tour-detail__layout">
       <div className="skeleton tour-detail__gallery tour-detail__skeleton-gallery" />
       <div className="booking-box">
         <div className="skeleton tour-detail__skeleton-line tour-detail__skeleton-line--short" />
         <div className="skeleton tour-detail__skeleton-price" />
-        <div className="skeleton tour-detail__skeleton-line" />
+        <div className="skeleton tour-detail__skeleton-chips" />
         <div className="skeleton tour-detail__skeleton-button" />
       </div>
       <div className="tour-detail__content">
         <div className="skeleton tour-detail__skeleton-section" />
       </div>
+    </div>
+  </div>
+);
+
+const TourFact = ({ icon, label, value }) => (
+  <div className="tour-facts__item">
+    <span className="tour-facts__icon" aria-hidden="true">
+      <FontAwesomeIcon icon={icon} />
+    </span>
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
     </div>
   </div>
 );
@@ -133,14 +120,17 @@ const TourDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [isNotFound, setIsNotFound] = useState(false);
-  const departuresRef = useRef(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const bookingBoxRef = useRef(null);
 
   const loadTour = useCallback(async () => {
     setIsLoading(true);
     setLoadError('');
     setIsNotFound(false);
     try {
-      setTour(await getTour(tourId));
+      const data = await getTour(tourId);
+      setTour(data);
+      setSelectedId(data.lich_khoi_hanh[0]?.ma_lich_khoi_hanh ?? null);
     } catch (error) {
       // 400 (mã không phải số) và 404 (không có hoặc đang ẩn) đều coi là không tìm thấy tour
       if ([400, 404].includes(error.response?.status)) setIsNotFound(true);
@@ -155,8 +145,17 @@ const TourDetailPage = () => {
     loadTour();
   }, [loadTour]);
 
-  const scrollToDepartures = () =>
-    departuresRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+  const isReady = !isLoading && Boolean(tour);
+  const selected = tour?.lich_khoi_hanh.find((departure) => departure.ma_lich_khoi_hanh === selectedId) ?? null;
+  const activeSection = useActiveSection(isReady);
+  const showBookBar = useScrolledPast(bookingBoxRef, isReady && canBook && Boolean(selected));
+
+  // Thanh đặt tour dính đáy che mất phần cuối footer, nên chừa chỗ ở cuối trang khi thanh tồn tại
+  const hasBookBar = isReady && canBook && Boolean(selected);
+  useEffect(() => {
+    document.body.classList.toggle('has-book-bar', hasBookBar);
+    return () => document.body.classList.remove('has-book-bar');
+  }, [hasBookBar]);
 
   if (isNotFound) {
     return (
@@ -185,10 +184,10 @@ const TourDetailPage = () => {
     );
   }
 
-  if (isLoading || !tour) return <DetailSkeleton />;
+  if (!isReady) return <DetailSkeleton />;
 
   const typeStyle = getTourTypeStyle(tour.ten_loai_tour);
-  const nearest = tour.lich_khoi_hanh[0];
+  const duration = formatDuration(tour.so_ngay, tour.so_dem);
 
   return (
     <div className="container tour-detail" style={tourTypeCssVars(tour.ten_loai_tour)}>
@@ -202,98 +201,62 @@ const TourDetailPage = () => {
 
       <header className="tour-detail__header">
         <p className="tour-detail__eyebrow">
-          <span className="tour-detail__type">
+          <Link to={`/tour?tourType=${tour.ma_loai_tour}`} className="tour-detail__type">
             <FontAwesomeIcon icon={typeStyle.icon} />
             {tour.ten_loai_tour}
-          </span>
+          </Link>
           <span className="tour-detail__code">Mã tour {tour.ma_tour}</span>
         </p>
         <h1 className="tour-detail__title">{tour.ten_tour}</h1>
         {/* Bước 30: nút trái tim yêu thích đặt cạnh tiêu đề */}
       </header>
 
-      <dl className="tour-facts">
-        <div className="tour-facts__item">
-          <dt>
-            <FontAwesomeIcon icon={faClock} /> Thời gian
-          </dt>
-          <dd>{formatDuration(tour.so_ngay, tour.so_dem)}</dd>
-        </div>
-        <div className="tour-facts__item">
-          <dt>
-            <FontAwesomeIcon icon={faFlag} /> Điểm đến
-          </dt>
-          <dd>{tour.ten_diem_den}</dd>
-        </div>
-        <div className="tour-facts__item">
-          <dt>
-            <FontAwesomeIcon icon={faLocationDot} /> Khởi hành từ
-          </dt>
-          <dd>{tour.ten_diem_khoi_hanh}</dd>
-        </div>
-        <div className="tour-facts__item">
-          <dt>
-            <FontAwesomeIcon icon={getTransportIcon(tour.ten_phuong_tien)} /> Phương tiện
-          </dt>
-          <dd>{tour.ten_phuong_tien}</dd>
-        </div>
-      </dl>
-
       <div className="tour-detail__layout">
         <div className="tour-detail__gallery">
           {tour.anh_tour.length > 0 ? (
-            <TourGallery images={tour.anh_tour} tourName={tour.ten_tour} />
+            <TourGallery key={tour.ma_tour} images={tour.anh_tour} tourName={tour.ten_tour} />
           ) : (
             <div className="gallery__main">
               <TourImage alt={tour.ten_tour} placeholderText="Ảnh tour đang được cập nhật" />
             </div>
           )}
+
+          <dl className="tour-facts">
+            <TourFact icon={faClock} label="Thời gian" value={duration} />
+            <TourFact icon={faFlag} label="Điểm đến" value={tour.ten_diem_den} />
+            <TourFact icon={faLocationDot} label="Khởi hành từ" value={tour.ten_diem_khoi_hanh} />
+            <TourFact icon={getTransportIcon(tour.ten_phuong_tien)} label="Phương tiện" value={tour.ten_phuong_tien} />
+          </dl>
         </div>
 
-        <aside className="booking-box" aria-label="Giá và lịch khởi hành">
-          <p className="booking-box__label">Giá mỗi khách</p>
-          <p className="booking-box__price">{formatPrice(tour.gia)}</p>
-
-          <p className="booking-box__nearest">
-            <FontAwesomeIcon icon={faCalendarDays} />
-            {nearest ? (
-              <span>
-                Gần nhất: <strong>{formatDateOnly(nearest.ngay_khoi_hanh)}</strong>, còn{' '}
-                <strong className={nearest.so_cho_con_lai <= FEW_SEATS ? 'booking-box__few' : ''}>
-                  {nearest.so_cho_con_lai} chỗ
-                </strong>
-              </span>
-            ) : (
-              <span>Chưa có lịch khởi hành còn chỗ</span>
-            )}
-          </p>
-
-          {nearest && canBook ? (
-            <>
-              <Link to={bookingPath(tour.ma_tour, nearest.ma_lich_khoi_hanh)} className="btn btn--accent booking-box__action">
-                Đặt tour
-              </Link>
-              <button type="button" className="booking-box__link" onClick={scrollToDepartures}>
-                Chọn ngày khác ({tour.lich_khoi_hanh.length} ngày khởi hành)
-              </button>
-            </>
-          ) : (
-            <button type="button" className="btn btn--accent booking-box__action" onClick={scrollToDepartures}>
-              {nearest ? `Xem ${tour.lich_khoi_hanh.length} ngày khởi hành` : 'Xem lịch khởi hành'}
-            </button>
-          )}
-          {!canBook && <p className="booking-box__staff-note">Chỉ tài khoản khách hàng mới đặt được tour.</p>}
-
-          <p className="booking-box__help">
-            Cần tư vấn?{' '}
-            <a href={hotlineHref}>
-              <FontAwesomeIcon icon={faPhone} /> {siteInfo.hotline}
-            </a>
-          </p>
-        </aside>
+        <TourBookingBox
+          ref={bookingBoxRef}
+          tour={tour}
+          selected={selected}
+          onSelect={setSelectedId}
+          canBook={canBook}
+          onShowAllDates={() => scrollToSection('lich-khoi-hanh')}
+        />
 
         <div className="tour-detail__content">
-          <section className="tour-detail__section">
+          <nav className="section-tabs" aria-label="Các mục của tour">
+            {SECTIONS.map((section) => (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                className={`section-tabs__item${activeSection === section.id ? ' section-tabs__item--active' : ''}`}
+                aria-current={activeSection === section.id ? 'true' : undefined}
+                onClick={(event) => {
+                  event.preventDefault();
+                  scrollToSection(section.id);
+                }}
+              >
+                {section.label}
+              </a>
+            ))}
+          </nav>
+
+          <section id="tong-quan" className="tour-detail__section">
             <h2 className="tour-detail__heading">Tổng quan</h2>
             {tour.mo_ta_tong_quan ? (
               <p className="tour-detail__text">{tour.mo_ta_tong_quan}</p>
@@ -302,29 +265,41 @@ const TourDetailPage = () => {
             )}
           </section>
 
-          <section className="tour-detail__section">
-            <h2 className="tour-detail__heading">Lịch trình {formatDuration(tour.so_ngay, tour.so_dem)}</h2>
-            <ol className="day-plan">
-              {tour.lich_trinh.map((day) => (
-                <li key={day.ma_lich_trinh} className="day-plan__day">
-                  <span className="day-plan__badge">Ngày {day.ngay_thu}</span>
-                  <div className="day-plan__body">
-                    <h3 className="day-plan__title">{day.tieu_de}</h3>
-                    {day.noi_dung_hoat_dong && <p className="tour-detail__text">{day.noi_dung_hoat_dong}</p>}
-                  </div>
-                </li>
-              ))}
-            </ol>
+          <section id="lich-trinh" className="tour-detail__section">
+            {tour.lich_trinh.length > 0 ? (
+              <TourItinerary key={tour.ma_tour} title={`Lịch trình ${duration}`} days={tour.lich_trinh} />
+            ) : (
+              <>
+                <h2 className="tour-detail__heading">Lịch trình</h2>
+                <p className="tour-detail__muted">Lịch trình chi tiết đang được cập nhật.</p>
+              </>
+            )}
           </section>
 
-          <section className="tour-detail__section tour-detail__departures" ref={departuresRef}>
-            <h2 className="tour-detail__heading">Lịch khởi hành</h2>
-            <DepartureTable departures={tour.lich_khoi_hanh} days={tour.so_ngay} tourId={tour.ma_tour} canBook={canBook} />
+          <section id="lich-khoi-hanh" className="tour-detail__section">
+            <div className="tour-detail__section-head">
+              <h2 className="tour-detail__heading">Lịch khởi hành</h2>
+              {tour.lich_khoi_hanh.length > 1 && (
+                <span className="tour-detail__head-note">Cùng giá {formatPrice(tour.gia)}/khách ở mọi ngày</span>
+              )}
+            </div>
+            {tour.lich_khoi_hanh.length > 0 ? (
+              <DepartureCards key={tour.ma_tour} departures={tour.lich_khoi_hanh} days={tour.so_ngay} tourId={tour.ma_tour} canBook={canBook} />
+            ) : (
+              <p className="tour-detail__muted">
+                Tour hiện chưa có lịch khởi hành còn chỗ. Gọi <a href={hotlineHref}>{siteInfo.hotline}</a> để được tư vấn
+                lịch mới.
+              </p>
+            )}
           </section>
 
           {/* Bước 27: mục "Đánh giá" của khách đã đi tour đặt ở đây */}
         </div>
       </div>
+
+      <RelatedTours tourId={tour.ma_tour} tourTypeId={tour.ma_loai_tour} tourTypeName={tour.ten_loai_tour} />
+
+      {hasBookBar && <MobileBookingBar tour={tour} selected={selected} visible={showBookBar} />}
     </div>
   );
 };
